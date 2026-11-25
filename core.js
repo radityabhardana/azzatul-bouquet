@@ -19,9 +19,74 @@ function safeReadStorage(key, fallback) {
   }
 }
 
-function safeWriteStorage(key, value) {
+const CLOUD_SYNC_KEYS = new Set([
+  STORAGE_KEYS.PRODUCTS,
+  STORAGE_KEYS.INVENTORY,
+  STORAGE_KEYS.STOCK_LOGS,
+  STORAGE_KEYS.ORDERS,
+  STORAGE_KEYS.EXPENSES,
+  STORAGE_KEYS.OPNAME_LOGS,
+  STORAGE_KEYS.CUSTOM_ITEMS,
+]);
+
+let cloudSyncEnabled = false;
+let cloudSyncInFlight = null;
+
+function isHttpOrigin() {
+  return typeof window !== 'undefined' && window.location && /^https?:$/i.test(window.location.protocol);
+}
+
+function pushKeyToCloud(key, value) {
+  if (!isHttpOrigin() || !CLOUD_SYNC_KEYS.has(key) || typeof fetch !== 'function') return;
+  try {
+    fetch('/api/store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+async function syncStoreFromCloud() {
+  if (!isHttpOrigin() || typeof fetch !== 'function') return false;
+  if (cloudSyncInFlight) return cloudSyncInFlight;
+  cloudSyncInFlight = (async () => {
+    try {
+      const res = await fetch('/api/store', { cache: 'no-store' });
+      if (!res.ok) return false;
+      const json = await res.json();
+      if (!json || !json.enabled || !json.data || typeof json.data !== 'object') return false;
+      cloudSyncEnabled = true;
+      let changed = false;
+      for (const key of CLOUD_SYNC_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(json.data, key)) {
+          const nextRaw = JSON.stringify(json.data[key]);
+          if (localStorage.getItem(key) !== nextRaw) {
+            localStorage.setItem(key, nextRaw);
+            changed = true;
+          }
+        }
+      }
+      if (changed && typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('azzatul-cloud-sync', { detail: { changed: true } }));
+      }
+      return changed;
+    } catch (e) {
+      return false;
+    } finally {
+      cloudSyncInFlight = null;
+    }
+  })();
+  return cloudSyncInFlight;
+}
+
+function safeWriteStorage(key, value, opts = {}) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    if (!opts || !opts.skipCloud) {
+      pushKeyToCloud(key, value);
+    }
     return true;
   } catch (e) {
     if (typeof showToast === 'function') {
@@ -221,21 +286,24 @@ function saveCustomFillItems(list) {
 }
 
 function initStore() {
-  if (localStorage.getItem(STORAGE_KEYS.PRODUCTS) === null) saveProducts(SEED_PRODUCTS);
-  if (localStorage.getItem(STORAGE_KEYS.INVENTORY) === null) saveInventory(SEED_INVENTORY);
-  if (localStorage.getItem(STORAGE_KEYS.STOCK_LOGS) === null) saveStockLogs(SEED_STOCK_LOGS);
-  if (localStorage.getItem(STORAGE_KEYS.ORDERS) === null) saveOrders(SEED_ORDERS);
-  if (localStorage.getItem(STORAGE_KEYS.EXPENSES) === null) saveExpenses(SEED_EXPENSES);
-  if (localStorage.getItem(STORAGE_KEYS.OPNAME_LOGS) === null) saveOpnameLogs(SEED_OPNAME_LOGS);
+  if (localStorage.getItem(STORAGE_KEYS.PRODUCTS) === null) safeWriteStorage(STORAGE_KEYS.PRODUCTS, SEED_PRODUCTS, { skipCloud: true });
+  if (localStorage.getItem(STORAGE_KEYS.INVENTORY) === null) safeWriteStorage(STORAGE_KEYS.INVENTORY, SEED_INVENTORY, { skipCloud: true });
+  if (localStorage.getItem(STORAGE_KEYS.STOCK_LOGS) === null) safeWriteStorage(STORAGE_KEYS.STOCK_LOGS, SEED_STOCK_LOGS, { skipCloud: true });
+  if (localStorage.getItem(STORAGE_KEYS.ORDERS) === null) safeWriteStorage(STORAGE_KEYS.ORDERS, SEED_ORDERS, { skipCloud: true });
+  if (localStorage.getItem(STORAGE_KEYS.EXPENSES) === null) safeWriteStorage(STORAGE_KEYS.EXPENSES, SEED_EXPENSES, { skipCloud: true });
+  if (localStorage.getItem(STORAGE_KEYS.OPNAME_LOGS) === null) safeWriteStorage(STORAGE_KEYS.OPNAME_LOGS, SEED_OPNAME_LOGS, { skipCloud: true });
 }
 
 function resetDemoData() {
-  saveProducts(SEED_PRODUCTS);
-  saveInventory(SEED_INVENTORY);
-  saveStockLogs(SEED_STOCK_LOGS);
-  saveOrders(SEED_ORDERS);
-  saveExpenses(SEED_EXPENSES);
-  saveOpnameLogs(SEED_OPNAME_LOGS);
+  if (isHttpOrigin() && typeof fetch === 'function') {
+    try { fetch('/api/store', { method: 'DELETE', keepalive: true }).catch(() => {}); } catch (e) {}
+  }
+  safeWriteStorage(STORAGE_KEYS.PRODUCTS, SEED_PRODUCTS, { skipCloud: true });
+  safeWriteStorage(STORAGE_KEYS.INVENTORY, SEED_INVENTORY, { skipCloud: true });
+  safeWriteStorage(STORAGE_KEYS.STOCK_LOGS, SEED_STOCK_LOGS, { skipCloud: true });
+  safeWriteStorage(STORAGE_KEYS.ORDERS, SEED_ORDERS, { skipCloud: true });
+  safeWriteStorage(STORAGE_KEYS.EXPENSES, SEED_EXPENSES, { skipCloud: true });
+  safeWriteStorage(STORAGE_KEYS.OPNAME_LOGS, SEED_OPNAME_LOGS, { skipCloud: true });
   try {
     localStorage.removeItem(STORAGE_KEYS.CUSTOM_ITEMS);
     localStorage.removeItem(STORAGE_KEYS.CHECKOUT_FORM);
@@ -1705,6 +1773,7 @@ function bootstrapSharedPage(activePage, transparentOnHero = false) {
   initRevealObserver();
   initScrollEffects();
   initCustomSelectEnhancer();
+  syncStoreFromCloud();
 }
 
 // ---------- Luxury Custom Editorial Dropdown Enhancer (Replaces Native OS Select Popups) ----------

@@ -762,6 +762,33 @@ function createStaticServer() {
         return await handleQrisApi(req, res, urlObj);
       }
 
+      if (decodedPath === '/api/store') {
+        const envPath = path.join(ROOT_DIR, '.env');
+        try {
+          if (fs.existsSync(envPath)) {
+            for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith('#')) continue;
+              const eqIdx = trimmed.indexOf('=');
+              if (eqIdx === -1) continue;
+              const k = trimmed.slice(0, eqIdx).trim();
+              let v = trimmed.slice(eqIdx + 1).trim();
+              if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+              if ((k === 'SUPABASE_URL' || k === 'SUPABASE_SERVICE_KEY' || k === 'SUPABASE_ANON_KEY') && v) {
+                process.env[k] = v;
+              }
+            }
+          }
+        } catch (e) {}
+        if (req.method === 'POST') {
+          try { req.body = await readRequestBody(req); } catch (err) {
+            return sendJson(res, err.statusCode || 400, { error: 'INVALID_BODY', message: err.message });
+          }
+        }
+        const storeHandler = require('./api/store.js');
+        return await storeHandler(req, res);
+      }
+
       if (req.method !== 'GET' && req.method !== 'HEAD') {
         return sendPlain(res, 405, 'Method Not Allowed');
       }

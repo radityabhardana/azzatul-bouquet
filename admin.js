@@ -1506,4 +1506,20 @@ function exportOrdersCsv() {
   showToast('Laporan CSV berhasil diunduh.', 'success');
 }
 
-document.addEventListener('DOMContentLoaded', initAdminPage);
+window.addEventListener('azzatul-cloud-sync', () => {
+  if (getAdminSession()) {
+    renderAdminTab();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdminPage();
+  if (typeof syncStoreFromCloud === 'function') {
+    syncStoreFromCloud();
+    setInterval(() => {
+      if (!document.hidden && getAdminSession()) {
+        syncStoreFromCloud();
+      }
+    }, 8000);
+  }
+});
