@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: azzatul-bouquet
+    runtime: node
+    plan: free
+    buildCommand: ""
+    startCommand: node dev-server.js
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: MIDTRANS_IS_PRODUCTION
+        value: "false"
+      - key: MIDTRANS_SERVER_KEY
+        sync: false
