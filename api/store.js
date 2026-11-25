@@ -56,9 +56,11 @@ module.exports = async function handler(req, res) {
 
   const baseHeaders = {
     apikey: cfg.key,
-    Authorization: `Bearer ${cfg.key}`,
     'Content-Type': 'application/json',
   };
+  if (cfg.key.startsWith('eyJ')) {
+    baseHeaders.Authorization = `Bearer ${cfg.key}`;
+  }
 
   // GET /api/store — Fetch all shared studio collections from Supabase
   if (req.method === 'GET') {
