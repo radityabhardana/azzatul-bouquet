@@ -1,0 +1,8 @@
+{
+  "name": "Azzatul Bouquet — Auto Prototype & Rename",
+  "id": "azzatul-bouquet-auto-prototype-local",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}

@@ -1,0 +1,1190 @@
+﻿<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jadwal &amp; Pembayaran — Azzatul Bouquet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <link rel="stylesheet" href="styles.css?v=23" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
+            display: ['Hedvig Letters Serif', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="antialiased selection:bg-[#B85D38]/15 bg-[#FAF6EE] text-[#1F1C1B]">
+
+  <div id="site-navbar"></div>
+
+  <main class="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14 space-y-8">
+    <!-- Empty Draft State -->
+    <section id="checkout-empty" class="hidden bg-white border border-[#E6DDD0] rounded-3xl p-12 text-center space-y-4">
+      <h1 class="font-display text-3xl sm:text-4xl text-[#1F1C1B]">Belum Ada Buket di Pesanan</h1>
+      <p class="text-xs sm:text-sm text-[#6A625B] max-w-md mx-auto">
+        Silakan pilih template buket siap pakai atau rangkai buket custom versimu terlebih dahulu.
+      </p>
+      <div class="flex flex-wrap justify-center gap-3 pt-2">
+        <a href="/customize?step=2" class="btn-primary px-6 py-2.5 text-xs font-semibold">Mulai Rangkai</a>
+        <a href="/" class="btn-outline px-6 py-2.5 text-xs font-semibold">Kembali ke Beranda</a>
+      </div>
+    </section>
+
+    <!-- STAGE 1: Checkout Form View -->
+    <section id="checkout-main-view" class="hidden space-y-8">
+      <div class="border-b border-[#E6DDD0] pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div class="space-y-1">
+          <a href="/customize?step=4" class="inline-flex items-center gap-1.5 text-xs text-[#6A625B] hover:text-[#1F1C1B] transition mb-1">
+            <i class="ph ph-arrow-left"></i><span>Kembali ubah buket</span>
+          </a>
+          <h1 class="font-display text-3xl sm:text-4xl text-[#1F1C1B]">Jadwal &amp; Rencana Pembayaran</h1>
+          <p class="text-xs text-[#6A625B]">Data yang kamu isi otomatis tersimpan di browser agar tidak hilang saat refresh.</p>
+        </div>
+      </div>
+
+      <form id="checkout-form" onsubmit="submitCheckoutOrder(event)" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- LEFT FORM STEPS -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- 1. Data Pemesan -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 space-y-4">
+            <h2 class="font-display text-2xl text-[#1F1C1B] border-b border-[#E6DDD0] pb-3">1. Data Pemesan</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label class="block font-semibold text-[#1F1C1B] mb-1">Nama Lengkap *</label>
+                <input id="co-name" type="text" required placeholder="Contoh: Raka Pratama" oninput="persistCheckoutForm()"
+                  class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+              </div>
+              <div>
+                <label class="block font-semibold text-[#1F1C1B] mb-1">Nomor WhatsApp *</label>
+                <input id="co-phone" type="tel" required placeholder="Contoh: 081234567890" oninput="persistCheckoutForm()"
+                  class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+              </div>
+            </div>
+            <div class="text-xs">
+              <label class="block font-semibold text-[#1F1C1B] mb-1">Catatan Tambahan (Opsional)</label>
+              <textarea id="co-note" rows="2" placeholder="Catatan warna pita atau permintaan khusus..." oninput="persistCheckoutForm()"
+                class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+            </div>
+          </div>
+
+          <!-- 2. Jadwal & Pengiriman -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 space-y-4">
+            <h2 class="font-display text-2xl text-[#1F1C1B] border-b border-[#E6DDD0] pb-3">2. Pengambilan atau Pengiriman</h2>
+
+            <div class="space-y-2 text-xs">
+              <div id="co-zones-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+
+            <div class="text-xs">
+              <label class="block font-semibold text-[#1F1C1B] mb-1">Tanggal Target *</label>
+              <input id="co-date" type="date" required onchange="renderScheduleSlotsAndFifo(); persistCheckoutForm();"
+                class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+            </div>
+
+            <div id="co-address-wrap" class="hidden text-xs">
+              <label class="block font-semibold text-[#1F1C1B] mb-1">Alamat Lengkap Pengiriman *</label>
+              <textarea id="co-address" rows="2" placeholder="Nama jalan, nomor rumah, gedung, atau patokan..." oninput="persistCheckoutForm()"
+                class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+            </div>
+
+            <div id="co-fifo-banner" class="p-3.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl text-xs text-[#6A625B]"></div>
+          </div>
+
+          <!-- 3. Voucher -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 space-y-3">
+            <h2 class="font-display text-2xl text-[#1F1C1B] border-b border-[#E6DDD0] pb-3">3. Kode Promo</h2>
+            <div class="flex gap-2">
+              <input id="co-voucher-input" type="text" placeholder="Masukkan kode (cth: WISUDA15)"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();applyCheckoutVoucher();}"
+                class="flex-1 px-3.5 py-2.5 text-xs uppercase font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+              <button type="button" onclick="applyCheckoutVoucher()" class="btn-outline px-5 py-2 text-xs font-semibold cursor-pointer">
+                Terapkan
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-[11px]">
+              <span class="text-[#6A625B]">Promo aktif:</span>
+              <button type="button" onclick="quickPickVoucher('WISUDA15')" class="font-mono px-3 py-1 bg-[#FAF6EE] border border-[#E6DDD0] text-[#B85D38] rounded-full cursor-pointer hover:border-[#B85D38] transition">
+                WISUDA15
+              </button>
+              <button type="button" onclick="quickPickVoucher('KREASI20')" class="font-mono px-3 py-1 bg-[#FAF6EE] border border-[#E6DDD0] text-[#1F1C1B] rounded-full cursor-pointer hover:border-[#1F1C1B] transition">
+                KREASI20
+              </button>
+            </div>
+            <p id="co-voucher-feedback" class="text-xs font-medium hidden"></p>
+          </div>
+
+          <!-- 4. Metode Pembayaran (QRIS Saja) -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 space-y-4">
+            <div class="border-b border-[#E6DDD0] pb-3">
+              <h2 class="font-display text-2xl text-[#1F1C1B]">4. Metode Pembayaran</h2>
+              <p class="text-xs text-[#6A625B] mt-0.5">Kode QRIS dengan nominal otomatis akan langsung tampil di langkah berikutnya setelah pesanan dibuat.</p>
+            </div>
+            <div class="grid grid-cols-1 gap-2.5 text-xs" id="co-payment-methods"></div>
+            <div id="co-payment-info-note" class="p-3.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl text-xs text-[#6A625B]"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT STICKY SUMMARY -->
+        <aside class="lg:col-span-5 lg:sticky lg:top-24">
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-3">
+              <h2 class="font-display text-2xl text-[#1F1C1B]">Ringkasan Pesanan</h2>
+              <a href="/customize?step=4" class="text-xs font-semibold text-[#B85D38] hover:underline">Ubah</a>
+            </div>
+
+            <div id="co-item-preview" class="flex items-start gap-3.5"></div>
+
+            <div id="co-card-summary" class="p-3.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl text-[11px] space-y-1"></div>
+
+            <div id="co-price-breakdown" class="space-y-2 pt-3 border-t border-[#E6DDD0] text-xs"></div>
+
+            <button type="submit" class="btn-primary w-full py-3.5 px-5 text-xs sm:text-sm font-semibold cursor-pointer inline-flex items-center justify-center gap-2 hover:bg-[#B85D38] transition">
+              <span>Buat Pesanan &amp; Lanjut Bayar</span>
+              <i class="ph ph-arrow-right"></i>
+            </button>
+          </div>
+        </aside>
+      </form>
+    </section>
+
+    <!-- STAGE 2: Active Invoice, QRIS/Rekening, Upload Bukti & Kirim WA -->
+    <section id="checkout-success-view" class="hidden space-y-6"></section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="data.js?v=23"></script>
+  <script src="core.js?v=23"></script>
+  <script>
+    let checkoutDraft = null;
+    let selectedZoneId = 'studio';
+    let selectedPayMethod = 'QRIS';
+    let appliedVoucherCode = '';
+    let activeOrderObj = null;
+    let qrisPollTimer = null;
+    let qrisLoading = false;
+    let qrisErrorMsg = '';
+    let qrisConfigMissing = false;
+
+    function initCheckoutPage() {
+      bootstrapSharedPage('checkout', false);
+
+      const presetId = getQueryParam('preset');
+      const isNewCheckout = getQueryParam('new') === '1';
+      if (isNewCheckout) {
+        saveActiveInvoiceId('');
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, '', '/checkout');
+        }
+      }
+      if (presetId) {
+        saveActiveInvoiceId('');
+        const incoming = getDraftOrder();
+        checkoutDraft = buildDraftFromProduct(presetId, 'catalog');
+        // Keep the greeting card the customer already wrote on customize.html
+        if (incoming && incoming.productId === presetId) {
+          checkoutDraft.cardTheme = incoming.cardTheme || checkoutDraft.cardTheme;
+          checkoutDraft.cardTo = incoming.cardTo || '';
+          checkoutDraft.cardMessage = incoming.cardMessage || checkoutDraft.cardMessage;
+          checkoutDraft.cardFrom = incoming.cardFrom || '';
+        }
+        saveDraftOrder(checkoutDraft);
+      }
+
+      // Check if user was already on an active/pending invoice before refresh
+      const savedInvoice = getActiveInvoiceId();
+      if (savedInvoice && !presetId && !isNewCheckout) {
+        let existingOrder = null;
+        if (typeof savedInvoice === 'object' && savedInvoice.id) {
+          existingOrder = getOrders().find((o) => o.id === savedInvoice.id) || null;
+          // Only revive an uncommitted pending invoice; a committed order deleted by Admin stays gone
+          if (!existingOrder && !savedInvoice.committedToQueue) existingOrder = savedInvoice;
+        } else if (typeof savedInvoice === 'string') {
+          existingOrder = getOrders().find((o) => o.id === savedInvoice) || null;
+        }
+        if (existingOrder) {
+          activeOrderObj = existingOrder;
+          document.getElementById('checkout-empty').classList.add('hidden');
+          document.getElementById('checkout-main-view').classList.add('hidden');
+          renderCheckoutInvoice(existingOrder);
+          if (!existingOrder.midtransPaid) {
+            if (existingOrder.midtransQrUrl || existingOrder.midtransQrString) {
+              startMidtransStatusPolling(existingOrder.id);
+            } else {
+              requestMidtransQris(existingOrder.id, false);
+            }
+          }
+          return;
+        }
+      }
+
+      if (!checkoutDraft) checkoutDraft = getDraftOrder();
+
+      if (!checkoutDraft) {
+        document.getElementById('checkout-empty').classList.remove('hidden');
+        document.getElementById('checkout-main-view').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('checkout-empty').classList.add('hidden');
+      document.getElementById('checkout-main-view').classList.remove('hidden');
+
+      const dateInput = document.getElementById('co-date');
+      if (dateInput) {
+        dateInput.min = getTodayDateString(0);
+        dateInput.value = getTodayDateString(1);
+      }
+
+      // Restore saved checkout form state so refresh never loses user input
+      const savedForm = getCheckoutFormState();
+      if (savedForm) {
+        if (savedForm.name) document.getElementById('co-name').value = savedForm.name;
+        if (savedForm.phone) document.getElementById('co-phone').value = savedForm.phone;
+        if (savedForm.note) document.getElementById('co-note').value = savedForm.note;
+        if (savedForm.address) document.getElementById('co-address').value = savedForm.address;
+        if (savedForm.date && dateInput) {
+          dateInput.value = savedForm.date < dateInput.min ? getTodayDateString(1) : savedForm.date;
+        }
+        if (savedForm.zoneId && DELIVERY_ZONES.some((z) => z.id === savedForm.zoneId)) {
+          selectedZoneId = savedForm.zoneId;
+        }
+        selectedPayMethod = 'QRIS';
+        if (savedForm.voucherCode) {
+          appliedVoucherCode = savedForm.voucherCode;
+          document.getElementById('co-voucher-input').value = savedForm.voucherCode;
+        }
+      } else if (checkoutDraft.referenceNote) {
+        document.getElementById('co-note').value = checkoutDraft.referenceNote;
+      }
+
+      selectDeliveryZone(selectedZoneId, false);
+      renderScheduleSlotsAndFifo();
+      renderPaymentMethodCards();
+      if (appliedVoucherCode) applyCheckoutVoucher(false);
+      renderOrderSummarySidebar();
+    }
+
+    function persistCheckoutForm() {
+      saveCheckoutFormState({
+        name: document.getElementById('co-name')?.value || '',
+        phone: document.getElementById('co-phone')?.value || '',
+        note: document.getElementById('co-note')?.value || '',
+        address: document.getElementById('co-address')?.value || '',
+        date: document.getElementById('co-date')?.value || '',
+        zoneId: selectedZoneId,
+        payMethod: selectedPayMethod,
+        voucherCode: appliedVoucherCode,
+      });
+    }
+
+    function selectDeliveryZone(zoneId, shouldPersist = true) {
+      selectedZoneId = zoneId;
+      const zObj = DELIVERY_ZONES.find((z) => z.id === zoneId) || DELIVERY_ZONES[0];
+      const addrWrap = document.getElementById('co-address-wrap');
+      const addrInput = document.getElementById('co-address');
+      if (zObj && zObj.needAddress) {
+        addrWrap.classList.remove('hidden');
+        addrInput.required = true;
+      } else {
+        addrWrap.classList.add('hidden');
+        addrInput.required = false;
+      }
+      renderDeliveryZones();
+      renderOrderSummarySidebar();
+      if (shouldPersist) persistCheckoutForm();
+    }
+
+    function renderDeliveryZones() {
+      document.getElementById('co-zones-list').innerHTML = DELIVERY_ZONES.map((z) => {
+        const active = z.id === selectedZoneId;
+        return `<button type="button" onclick="selectDeliveryZone('${z.id}')"
+          class="p-3.5 border rounded-2xl text-left cursor-pointer transition ${
+            active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+          }">
+          <span class="block font-semibold text-[#1F1C1B]">${escapeHtml(z.label.split('(')[0].trim())}</span>
+          <span class="block font-mono text-[11px] text-[#B85D38] mt-0.5">${z.fee === 0 ? 'Gratis' : formatRupiah(z.fee)}</span>
+        </button>`;
+      }).join('');
+    }
+
+    function renderScheduleSlotsAndFifo() {
+      const banner = document.getElementById('co-fifo-banner');
+      if (!banner) return;
+      const date = document.getElementById('co-date')?.value || '';
+      const active = getOrders().filter(
+        (o) =>
+          o.status !== 'Selesai' &&
+          o.status !== 'Dibatalkan' &&
+          (o.midtransPaid || o.paymentStatus === 'Lunas' || o.paymentProofImage || o.status !== 'Menunggu Konfirmasi')
+      );
+      const sameDay = date ? active.filter((o) => o.pickupDate === date).length : active.length;
+      banner.innerHTML =
+        `Pesanan diproses sesuai urutan antrean FIFO. Perkiraan posisi antrean untuk tanggal <strong class="text-[#1F1C1B]">${escapeHtml(date || '-')}</strong>: ` +
+        `<strong class="font-mono text-[#1F1C1B]">#${String(sameDay + 1).padStart(2, '0')}</strong> ` +
+        `<span class="text-[#6A625B]">(total ${active.length} antrean aktif)</span>.`;
+    }
+
+    function quickPickVoucher(code) {
+      document.getElementById('co-voucher-input').value = code;
+      applyCheckoutVoucher(true);
+    }
+
+    function applyCheckoutVoucher(shouldPersist = true) {
+      const raw = (document.getElementById('co-voucher-input')?.value || '').trim().toUpperCase();
+      const fb = document.getElementById('co-voucher-feedback');
+      const totals = computeCheckoutTotals(false);
+
+      if (!raw) {
+        appliedVoucherCode = '';
+        fb.classList.add('hidden');
+        renderOrderSummarySidebar();
+        if (shouldPersist) persistCheckoutForm();
+        return;
+      }
+
+      const v = VOUCHERS[raw];
+      if (!v) {
+        appliedVoucherCode = '';
+        fb.textContent = 'Kode promo tidak dikenali.';
+        fb.className = 'text-xs font-medium text-[#B85D38]';
+      } else if (totals.craftSubtotal < v.minSpend) {
+        appliedVoucherCode = '';
+        fb.textContent = `Minimal belanja ${formatRupiah(v.minSpend)} untuk memakai ${v.code}.`;
+        fb.className = 'text-xs font-medium text-[#8A5A00]';
+      } else {
+        appliedVoucherCode = v.code;
+        fb.textContent = `${v.code} aktif: ${v.label}`;
+        fb.className = 'text-xs font-medium text-[#2E5940]';
+      }
+      renderOrderSummarySidebar();
+      if (shouldPersist) persistCheckoutForm();
+    }
+
+    function computeCheckoutTotals(includeCurrentVoucher = true) {
+      const calc = calculateConfigPricing(checkoutDraft);
+      // Voucher eligibility & discount apply to the craft price only, never to the cash principal (moneyCashTotal)
+      const craftSubtotal = calc.craftSubtotal;
+      const moneyCashTotal = calc.moneyCashTotal;
+      const zObj = DELIVERY_ZONES.find((z) => z.id === selectedZoneId) || DELIVERY_ZONES[0];
+      const shippingFee = zObj.fee;
+
+      let discountAmount = 0;
+      const vCode = includeCurrentVoucher ? appliedVoucherCode : '';
+      const v = vCode ? VOUCHERS[vCode] : null;
+      if (v && craftSubtotal >= v.minSpend) {
+        discountAmount = v.type === 'percent' ? Math.min(v.maxDiscount, Math.round((craftSubtotal * v.value) / 100)) : Math.min(v.maxDiscount, craftSubtotal);
+      }
+
+      const subtotal = craftSubtotal + moneyCashTotal;
+      const totalPrice = Math.max(0, subtotal - discountAmount + shippingFee);
+      const payNow = totalPrice;
+      const remaining = 0;
+      return { calc, subtotal, craftSubtotal, moneyCashTotal, shippingFee, discountAmount, voucherCode: v ? v.code : '', totalPrice, payNow, remaining, zObj };
+    }
+
+    function selectPaymentMethod(method) {
+      selectedPayMethod = method;
+      renderPaymentMethodCards();
+      renderOrderSummarySidebar();
+      persistCheckoutForm();
+    }
+
+    function renderPaymentMethodCards() {
+      selectedPayMethod = 'QRIS';
+      document.getElementById('co-payment-methods').innerHTML = `
+        <div class="p-4 border border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B] rounded-2xl flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white border border-[#E6DDD0] inline-flex items-center justify-center text-[#B85D38] shrink-0">
+              <i class="ph ph-qr-code text-xl"></i>
+            </span>
+            <div>
+              <span class="block font-semibold text-[#1F1C1B] text-sm">QRIS Nasional (Midtrans)</span>
+              <span class="block text-[11px] text-[#6A625B] mt-0.5">Mendukung GoPay, Dana, OVO, ShopeePay, BCA, Mandiri, BRI, BNI &amp; semua M-Banking</span>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-[#E9F2EC] text-[#2E5940] font-mono text-[10px] font-semibold shrink-0">Aktif</span>
+        </div>
+      `;
+
+      const noteEl = document.getElementById('co-payment-info-note');
+      if (noteEl) {
+        noteEl.innerHTML = 'Setelah klik <strong>Buat Pesanan &amp; Lanjut Bayar</strong>, kode <strong>QRIS dinamis</strong> akan langsung muncul dengan nominal otomatis dan status pembayaran terverifikasi otomatis.';
+      }
+    }
+
+    function renderOrderSummarySidebar() {
+      if (!checkoutDraft) return;
+      const t = computeCheckoutTotals(true);
+      const specText = buildConfigSpecSummary(checkoutDraft, t.calc);
+      const title = buildConfigTitle(checkoutDraft, t.calc);
+
+      const thumbHtml = `<div class="w-20 h-20 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl shrink-0 overflow-hidden">${renderBouquetPhotoPreview(checkoutDraft, 'w-full h-full object-cover')}</div>`;
+
+      document.getElementById('co-item-preview').innerHTML = `
+        ${thumbHtml}
+        <div class="min-w-0 space-y-1">
+          <h3 class="text-sm font-semibold text-[#1F1C1B] leading-snug">${escapeHtml(title)}</h3>
+          <p class="text-[11px] text-[#6A625B] leading-relaxed">${escapeHtml(specText)}</p>
+        </div>
+      `;
+
+      document.getElementById('co-card-summary').innerHTML = `
+        <p class="font-semibold text-[#1F1C1B]">Kartu Ucapan (Kepada: ${escapeHtml(checkoutDraft.cardTo || '-')})</p>
+        <p class="italic text-[#6A625B]">"${escapeHtml(checkoutDraft.cardMessage || '-')}"</p>
+      `;
+
+      document.getElementById('co-price-breakdown').innerHTML = `
+        <div class="flex justify-between text-[#6A625B]"><span>Harga Buket (jasa &amp; bahan)</span><span class="font-mono">${formatRupiah(t.craftSubtotal)}</span></div>
+        ${t.moneyCashTotal > 0 ? `<div class="flex justify-between text-[#6A625B]"><span>Nominal Uang Tunai</span><span class="font-mono">${formatRupiah(t.moneyCashTotal)}</span></div>` : ''}
+        <div class="flex justify-between text-[#6A625B]"><span>Pengiriman</span><span class="font-mono">${t.shippingFee > 0 ? formatRupiah(t.shippingFee) : 'Gratis'}</span></div>
+        ${t.discountAmount > 0 ? `<div class="flex justify-between text-[#2E5940]"><span>Diskon (${escapeHtml(t.voucherCode)})</span><span class="font-mono">-${formatRupiah(t.discountAmount)}</span></div>` : ''}
+        <div class="flex justify-between text-base font-bold text-[#1F1C1B] pt-2 border-t border-dashed border-[#D5C9BA]">
+          <span>Total</span>
+          <span class="font-mono text-[#B85D38]">${formatRupiah(t.totalPrice)}</span>
+        </div>
+        <div class="flex justify-between text-xs font-semibold text-[#2E5940] bg-[#E9F2EC] px-3 py-2 rounded-xl">
+          <span>Tagihan Awal (${escapeHtml(selectedPayMethod)})</span>
+          <span class="font-mono">${formatRupiah(t.payNow)}</span>
+        </div>
+      `;
+    }
+
+    function submitCheckoutOrder(event) {
+      event.preventDefault();
+      if (!checkoutDraft) return;
+
+      const customerName = document.getElementById('co-name')?.value.trim();
+      const customerPhone = document.getElementById('co-phone')?.value.trim();
+      const extraNote = document.getElementById('co-note')?.value.trim() || '';
+      const pickupDate = document.getElementById('co-date')?.value || getTodayDateString(1);
+      const slotId = 'antrean';
+      const addrInput = document.getElementById('co-address')?.value.trim();
+
+      if (!customerName) {
+        showToast('Lengkapi nama pemesan.', 'error');
+        return;
+      }
+
+      const normalizedPhone = (customerPhone || '').replace(/[\s-]/g, '');
+      if (!/^(\+?62|0)8[0-9]{7,13}$/.test(normalizedPhone)) {
+        showToast('Nomor WhatsApp tidak valid. Contoh: 081234567890.', 'error');
+        return;
+      }
+
+      const t = computeCheckoutTotals(true);
+      if (t.zObj.needAddress && (!addrInput || addrInput.length < 8)) {
+        showToast('Alamat pengiriman kurir wajib diisi minimal 8 karakter.', 'error');
+        return;
+      }
+
+      const specText = buildConfigSpecSummary(checkoutDraft, t.calc);
+      const title = buildConfigTitle(checkoutDraft, t.calc);
+      const orderId = 'KK-2026-' + String(Math.floor(1046 + Math.random() * 8900));
+
+      const sourceLabel =
+        checkoutDraft.sourceType === 'reference'
+          ? 'Referensi Sendiri'
+          : checkoutDraft.sourceType === 'catalog'
+          ? 'Katalog Custom'
+          : 'Custom Studio';
+
+      const newOrder = {
+        id: orderId,
+        createdAt: new Date().toISOString(),
+        source: sourceLabel,
+        customerName,
+        customerPhone,
+        deliveryZone: selectedZoneId,
+        deliveryType: t.zObj.label,
+        slotId,
+        pickupDate,
+        pickupTime: '',
+        address: t.zObj.needAddress ? addrInput || 'Alamat menyusul via WA' : PAYMENT_ACCOUNTS.studioAddress,
+        referenceImage: checkoutDraft.referenceImage || '',
+        referenceNote: extraNote || checkoutDraft.referenceNote || '',
+        paymentProofImage: '',
+        paymentProofName: '',
+        offerStatus: checkoutDraft.sourceType === 'reference' ? 'Menunggu Penawaran' : 'Sesuai Katalog',
+        offerNote: '',
+        greetingCard: checkoutDraft.cardMessage || '-',
+        greetingCardObj: {
+          theme: checkoutDraft.cardTheme || 'ivory',
+          to: (checkoutDraft.cardTo || '').trim() || '-',
+          message: checkoutDraft.cardMessage || '-',
+          from: (checkoutDraft.cardFrom || '').trim() || '-',
+        },
+        items: [
+          {
+            id: checkoutDraft.productId || 'CFG-' + orderId.slice(-4),
+            name: title,
+            price: t.subtotal,
+            hpp: t.calc.hppTotal,
+            qty: 1,
+            isCustom: !t.calc.isExactCatalogBundle,
+            satinBloomCount: t.calc.satinBlooms,
+            specText,
+            recipe: t.calc.recipe,
+          },
+        ],
+        subtotal: t.subtotal,
+        discountAmount: t.discountAmount,
+        voucherCode: t.voucherCode,
+        shippingFee: t.shippingFee,
+        totalPrice: t.totalPrice,
+        hppTotal: t.calc.hppTotal,
+        paidAmount: 0,
+        amountDue: t.payNow,
+        paymentStatus: 'Menunggu Verifikasi',
+        paymentMethod: selectedPayMethod,
+        status: 'Menunggu Konfirmasi',
+        florist: FLORISTS[0],
+        stockDeducted: false,
+        checklist: { stemPrep: false, wrapping: false, cardPrint: false, qualityCheck: false },
+      };
+
+      // Do NOT push unpaid order into Admin FIFO queue yet!
+      // Keep it as pending in ACTIVE_INVOICE until Midtrans QRIS settles (or proof is uploaded).
+      newOrder.committedToQueue = false;
+      saveActiveInvoiceId(newOrder);
+      activeOrderObj = newOrder;
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', '/checkout');
+      }
+
+      document.getElementById('checkout-main-view').classList.add('hidden');
+      renderCheckoutInvoice(newOrder);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      requestMidtransQris(newOrder.id, false);
+      showToast(`Invoice ${orderId} dibuat! Selesaikan pembayaran QRIS agar otomatis masuk antrean.`, 'success');
+    }
+
+    function commitOrderToAdminQueue(orderObj) {
+      if (!orderObj || !orderObj.id) return orderObj;
+      orderObj.committedToQueue = true;
+      const orders = getOrders();
+      const idx = orders.findIndex((o) => o.id === orderObj.id);
+      if (idx === -1) {
+        orders.push(orderObj);
+      } else {
+        orders[idx] = orderObj;
+      }
+      saveOrders(orders);
+      saveActiveInvoiceId(orderObj);
+      activeOrderObj = orderObj;
+      return orderObj;
+    }
+
+    function syncActiveOrderState(orderObj) {
+      if (!orderObj) return;
+      saveActiveInvoiceId(orderObj);
+      if (orderObj.committedToQueue) {
+        const orders = getOrders();
+        const idx = orders.findIndex((o) => o.id === orderObj.id);
+        if (idx !== -1) {
+          orders[idx] = orderObj;
+          saveOrders(orders);
+        }
+      }
+      activeOrderObj = orderObj;
+    }
+
+    function stopMidtransStatusPolling() {
+      if (qrisPollTimer) {
+        clearInterval(qrisPollTimer);
+        qrisPollTimer = null;
+      }
+    }
+
+    function startMidtransStatusPolling(orderId) {
+      stopMidtransStatusPolling();
+      qrisPollTimer = setInterval(() => {
+        checkMidtransQrisStatus(orderId, true);
+      }, 4500);
+    }
+
+    async function requestMidtransQris(orderId, forceNewAttempt = false) {
+      const target = (activeOrderObj && activeOrderObj.id === orderId)
+        ? activeOrderObj
+        : getOrders().find((o) => o.id === orderId);
+      if (!target || target.midtransPaid) return;
+
+      stopMidtransStatusPolling();
+      qrisLoading = true;
+      qrisErrorMsg = '';
+      qrisConfigMissing = false;
+      activeOrderObj = target;
+      renderCheckoutInvoice(target);
+
+      const attemptNum = forceNewAttempt ? (target.midtransAttempt || 1) + 1 : (target.midtransAttempt || 1);
+      const uniqueSuffix = forceNewAttempt ? `-R${attemptNum}-${Date.now().toString(36).slice(-3).toUpperCase()}` : (attemptNum > 1 ? `-R${attemptNum}` : '');
+      const midtransOrderId = `${target.id}${uniqueSuffix}`;
+      if (forceNewAttempt) {
+        target.midtransStatus = 'pending';
+        target.midtransQrUrl = '';
+        target.midtransQrString = '';
+      }
+      const itemName = target.items?.[0]?.name || 'Buket Custom Azzatul Bouquet';
+
+      try {
+        const res = await fetch('/api/qris/charge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: midtransOrderId,
+            grossAmount: Number(target.amountDue ?? target.paidAmount ?? target.totalPrice ?? 0),
+            customerName: target.customerName,
+            customerPhone: target.customerPhone,
+            itemName,
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          qrisLoading = false;
+          if (data.error === 'MIDTRANS_NOT_CONFIGURED') {
+            qrisConfigMissing = true;
+            qrisErrorMsg = data.message;
+          } else {
+            qrisErrorMsg = data.message || 'Gagal memuat QRIS dari Midtrans.';
+          }
+          renderCheckoutInvoice(target);
+          return;
+        }
+
+        target.midtransAttempt = attemptNum;
+        target.midtransOrderId = data.orderId || midtransOrderId;
+        target.midtransTransactionId = data.transactionId || '';
+        target.midtransQrUrl = data.qrUrl || '';
+        target.midtransQrString = data.qrString || '';
+        target.midtransExpiry = data.expiryTime || '';
+        target.midtransMode = data.mode || 'sandbox';
+        target.midtransStatus = data.transactionStatus || 'pending';
+        target.midtransSimulatorUrl = data.simulatorUrl || 'https://simulator.sandbox.midtrans.com/v2/qris/index';
+        syncActiveOrderState(target);
+        qrisLoading = false;
+        renderCheckoutInvoice(target);
+        startMidtransStatusPolling(target.id);
+      } catch (err) {
+        qrisLoading = false;
+        qrisErrorMsg = 'Server lokal tidak merespons endpoint /api/qris/charge. Pastikan jalankan lewat npm run dev.';
+        renderCheckoutInvoice(target);
+      }
+    }
+
+    async function simulateSandboxQrisPay(orderId) {
+      const target = (activeOrderObj && activeOrderObj.id === orderId)
+        ? activeOrderObj
+        : getOrders().find((o) => o.id === orderId);
+      if (!target || !target.midtransQrUrl) {
+        showToast('Klik Perbarui QR terlebih dahulu.', 'warn');
+        return;
+      }
+      showToast('Menjalankan simulasi pembayaran QRIS di server Midtrans Sandbox...', 'dark');
+      try {
+        const res = await fetch('/api/qris/simulate-pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ qrUrl: target.midtransQrUrl }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showToast(data.message || 'QR lama sudah kedaluwarsa, membuat QR baru...', 'warn');
+          await requestMidtransQris(orderId, true);
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 1200));
+        await checkMidtransQrisStatus(orderId, false);
+      } catch (e) {
+        showToast('Gagal menjalankan simulasi Sandbox.', 'error');
+      }
+    }
+
+    async function checkMidtransQrisStatus(orderId, isSilent = false) {
+      const target = (activeOrderObj && activeOrderObj.id === orderId)
+        ? activeOrderObj
+        : getOrders().find((o) => o.id === orderId);
+      if (!target || target.midtransPaid) {
+        stopMidtransStatusPolling();
+        return;
+      }
+
+      const queryOrderId = target.midtransOrderId || target.id;
+      try {
+        const res = await fetch(`/api/qris/status?order_id=${encodeURIComponent(queryOrderId)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          if (!isSilent) showToast(data.message || 'Gagal cek status Midtrans.', 'warn');
+          return;
+        }
+
+        target.midtransStatus = data.transactionStatus || target.midtransStatus;
+        if (data.isPaid) {
+          target.midtransPaid = true;
+          target.paymentStatus = 'Lunas';
+          target.status = 'Pembayaran Terverifikasi';
+          target.paidAmount = target.totalPrice;
+          target.amountDue = 0;
+          target.createdAt = new Date().toISOString();
+          commitOrderToAdminQueue(target);
+          stopMidtransStatusPolling();
+          clearDraftOrder();
+          renderCheckoutInvoice(target);
+          showToast(`Pembayaran QRIS ${target.id} Lunas! Pesanan resmi masuk antrean FIFO.`, 'success');
+          return;
+        }
+
+        if (data.isExpired) {
+          syncActiveOrderState(target);
+          stopMidtransStatusPolling();
+          renderCheckoutInvoice(target);
+          if (!isSilent) showToast('Kode QRIS sudah kedaluwarsa. Klik Buat Ulang QRIS.', 'warn');
+          return;
+        }
+
+        if (!isSilent) {
+          showToast(`Status Midtrans saat ini: ${data.transactionStatus || 'pending'} (belum dibayar).`, 'dark');
+        }
+      } catch (e) {
+        if (!isSilent) showToast('Gagal menghubungi server untuk cek status.', 'error');
+      }
+    }
+
+    function handleInvoiceProofUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file || !activeOrderObj) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 900;
+          const scale = Math.min(1, maxDim / img.width, maxDim / img.height);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+          activeOrderObj.paymentProofImage = dataUrl;
+          activeOrderObj.paymentProofName = file.name;
+          commitOrderToAdminQueue(activeOrderObj);
+          renderCheckoutInvoice(activeOrderObj);
+          showToast('Bukti pembayaran tersimpan & pesanan masuk antrean verifikasi admin!', 'success');
+        };
+        img.onerror = () => showToast('Gagal membaca file gambar. Coba file lain.', 'error');
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function buildFullOrderWaText(order) {
+      const fifoInfo = getFifoQueueMap()[order.id];
+      const rankStr = fifoInfo ? `#${String(fifoInfo.rank).padStart(2, '0')}` : 'Belum Masuk Antrean';
+      const item = order.items[0] || {};
+      const lines = [
+        `Halo Admin *Azzatul Bouquet*, saya ingin konfirmasi pesanan & bukti pembayaran:`,
+        ``,
+        `*Kode Pesanan:* ${order.id} (${rankStr})`,
+        `*Nama Pemesan:* ${order.customerName}`,
+        `*No. WhatsApp:* ${order.customerPhone}`,
+        ``,
+        `*Detail Buket:*`,
+        `- ${item.name || 'Buket Custom'}`,
+        `- Spesifikasi: ${item.specText || '-'}`,
+        `- Kartu Ucapan (Kepada ${order.greetingCardObj?.to || order.customerName}): "${order.greetingCard || '-'}"`,
+        order.referenceNote ? `- Catatan: ${order.referenceNote}` : '',
+        ``,
+        `*Jadwal & Pengambilan/Pengiriman:*`,
+        `- ${order.deliveryType}`,
+        `- Tanggal Target: ${order.pickupDate}`,
+        order.deliveryZone !== 'studio' ? `- Alamat: ${order.address}` : '',
+        ``,
+        `*Rincian Pembayaran:*`,
+        `- Metode: ${order.paymentMethod}`,
+        `- Total Tagihan: ${formatRupiah(order.totalPrice)}`,
+        `- Nominal Dibayar: ${formatRupiah(order.paidAmount)}`,
+        `- Status Pembayaran: ${order.midtransPaid ? 'TERVERIFIKASI OTOMATIS VIA QRIS MIDTRANS (' + order.paymentStatus + ')' : order.paymentProofImage ? 'Bukti bayar sudah diunggah di web (terlampir)' : 'Menyusul'}`,
+        ``,
+        `Mohon diverifikasi ya Kak, terima kasih!`,
+      ].filter((l) => l !== '');
+      return lines.join('\n');
+    }
+
+    async function sendOrderAndProofToWhatsApp() {
+      if (!activeOrderObj) return;
+      if (!activeOrderObj.midtransPaid && activeOrderObj.paymentStatus !== 'Lunas' && !activeOrderObj.paymentProofImage) {
+        showToast('Selesaikan pembayaran QRIS atau unggah dulu foto bukti pembayaran di bawah ini ya!', 'warn');
+        document.getElementById('invoice-proof-input')?.click();
+        return;
+      }
+
+      const fullText = buildFullOrderWaText(activeOrderObj);
+      const waUrl = `https://wa.me/${PAYMENT_ACCOUNTS.studioWaNumber}?text=${encodeURIComponent(fullText)}`;
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+      // 1. Mobile with proof image: try native share sheet (sends photo + full text together to WA)
+      if (isMobile && activeOrderObj.paymentProofImage && typeof navigator.canShare === 'function') {
+        try {
+          const res = await fetch(activeOrderObj.paymentProofImage);
+          const blob = await res.blob();
+          const file = new File([blob], `bukti-bayar-${activeOrderObj.id}.jpg`, { type: 'image/jpeg' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: `Pesanan ${activeOrderObj.id}`,
+              text: fullText,
+            });
+            return;
+          }
+        } catch (shareErr) {
+          // Fall through to opening WhatsApp link directly
+        }
+      }
+
+      // 2. Desktop: copy proof image to clipboard using Promise-based ClipboardItem,
+      //    while opening WhatsApp strictly in a NEW TAB during the same click gesture.
+      let copiedImage = false;
+      const canCopyImage = Boolean(activeOrderObj.paymentProofImage && navigator.clipboard && typeof ClipboardItem !== 'undefined');
+      let pngBlobPromise = null;
+      if (canCopyImage) {
+        pngBlobPromise = new Promise((resolve, reject) => {
+          const imgEl = new Image();
+          imgEl.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = imgEl.width;
+            c.height = imgEl.height;
+            c.getContext('2d').drawImage(imgEl, 0, 0);
+            c.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('toBlob failed'))), 'image/png');
+          };
+          imgEl.onerror = reject;
+          imgEl.src = activeOrderObj.paymentProofImage;
+        });
+      }
+
+      const a = document.createElement('a');
+      a.href = waUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      if (canCopyImage) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlobPromise })]);
+          copiedImage = true;
+        } catch (clipErr) {
+          copiedImage = false;
+        }
+      }
+
+      if (copiedImage) {
+        showToast('WA dibuka di tab baru & foto bukti otomatis disalin! Di chat WA tinggal tekan Ctrl+V untuk kirim fotonya.', 'success');
+      } else {
+        showToast('WhatsApp dibuka di tab baru dengan detail pesanan lengkap.', 'success');
+      }
+    }
+
+    function backToCheckoutForm() {
+      stopMidtransStatusPolling();
+      saveActiveInvoiceId('');
+      window.location.href = '/checkout?new=1';
+    }
+
+    function finishAndLeaveInvoice() {
+      stopMidtransStatusPolling();
+      clearDraftOrder();
+      clearCheckoutFormState();
+      saveActiveInvoiceId('');
+      window.location.href = '/';
+    }
+
+    function renderCheckoutInvoice(order) {
+      const successView = document.getElementById('checkout-success-view');
+      successView.classList.remove('hidden');
+
+      const fifoInfo = getFifoQueueMap()[order.id];
+      const rankStr = fifoInfo ? `Antrean #${String(fifoInfo.rank).padStart(2, '0')}` : 'Belum Masuk Antrean';
+      const item = order.items[0] || {};
+      const hasProof = Boolean(order.paymentProofImage);
+      const isPaid = Boolean(
+        order.midtransPaid ||
+        order.paymentStatus === 'Lunas' ||
+        order.paymentStatus === 'DP 50%' ||
+        ['Pembayaran Terverifikasi', 'Sedang Dirangkai', 'Siap Diambil/Dikirim', 'Selesai'].includes(order.status)
+      );
+      const isExpired = order.midtransStatus === 'expire' || order.midtransStatus === 'cancel' || order.midtransStatus === 'deny';
+      const isSandbox = (order.midtransMode || 'sandbox') === 'sandbox';
+
+      const verifiedPaidCardHtml = `
+        <div class="p-5 bg-[#E9F2EC] border border-[#2E5940]/30 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-xs">
+          <div class="w-12 h-12 rounded-full bg-[#2E5940] text-white flex items-center justify-center shrink-0">
+            <i class="ph ph-check-circle text-2xl"></i>
+          </div>
+          <div class="space-y-1 text-center sm:text-left">
+            <p class="font-semibold text-[#1F1C1B] text-sm">
+              ${order.midtransPaid ? 'Pembayaran QRIS Terverifikasi Otomatis (Midtrans)' : 'Pembayaran Selesai & Terverifikasi Admin'}
+            </p>
+            <p class="text-[#2E5940]">
+              Nominal <strong class="font-mono">${formatRupiah(order.paidAmount)}</strong> sudah dikonfirmasi (<strong>${escapeHtml(order.paymentStatus)}</strong>).
+              Status pesanan saat ini: <strong>${escapeHtml(order.status)}</strong>.
+            </p>
+            <p class="text-[11px] text-[#6A625B]">Terima kasih sudah memesan di Azzatul Bouquet! Kamu bisa cetak nota atau hubungi WA Admin kapan saja.</p>
+          </div>
+        </div>
+      `;
+
+      let qrisCardHtml = '';
+      if (isPaid) {
+        qrisCardHtml = verifiedPaidCardHtml;
+      } else if (qrisLoading) {
+        qrisCardHtml = `
+          <div class="p-6 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl text-center space-y-2 text-xs">
+            <i class="ph ph-spinner-gap animate-spin text-2xl text-[#B85D38]"></i>
+            <p class="font-semibold text-[#1F1C1B]">Menghubungkan ke Midtrans QRIS...</p>
+            <p class="text-[#6A625B]">Sedang membuat kode QRIS dinamis sebesar <strong class="font-mono">${formatRupiah(order.amountDue ?? order.paidAmount)}</strong>.</p>
+          </div>
+        `;
+      } else if ((order.midtransQrUrl || order.midtransQrString) && !isExpired) {
+        qrisCardHtml = `
+          <div class="flex flex-col sm:flex-row items-center gap-5 p-4 sm:p-5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl">
+            <div class="bg-white border border-[#D5C9BA] p-3.5 rounded-2xl shrink-0 text-center space-y-2 shadow-sm">
+              <div class="flex items-center justify-between text-[10px] font-mono font-bold text-[#1F1C1B] gap-3">
+                <span>QRIS MIDTRANS</span>
+                <span class="px-1.5 py-0.5 rounded bg-[#FBF2E6] text-[#B85D38] uppercase">${isSandbox ? 'Sandbox' : 'Live'}</span>
+              </div>
+              <div class="w-56 h-56 sm:w-60 sm:h-60 mx-auto flex items-center justify-center bg-white rounded-xl overflow-hidden">
+                ${
+                  order.midtransQrString
+                    ? `<img id="qris-local-img" alt="QRIS Midtrans Azzatul Bouquet" class="w-56 h-56 sm:w-60 sm:h-60 object-contain bg-white rounded-lg" />`
+                    : `<img src="/api/qris/image?url=${encodeURIComponent(order.midtransQrUrl)}" alt="QRIS Midtrans Azzatul Bouquet" class="w-56 h-56 sm:w-60 sm:h-60 object-contain bg-white rounded-lg" />`
+                }
+              </div>
+              <p class="font-mono text-[10px] text-[#6A625B]">ID: ${escapeHtml(order.midtransOrderId || order.id)}</p>
+            </div>
+            <div class="space-y-2.5 text-xs flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E9F2EC] text-[#2E5940] text-[10px] font-mono font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#2E5940] animate-pulse"></span>
+                  Auto-cek status aktif
+                </span>
+                ${order.midtransExpiry ? `<span class="text-[10px] font-mono text-[#6A625B]">Berlaku s/d ${escapeHtml(order.midtransExpiry)}</span>` : ''}
+              </div>
+              <p class="text-[#6A625B]">Scan QRIS di samping menggunakan <strong>GoPay, Dana, OVO, ShopeePay, atau Mobile Banking</strong>. Nominal otomatis terisi dan status langsung berubah menjadi <strong>Lunas</strong> begitu selesai dibayar.</p>
+              <p class="text-[#6A625B]">Total Bayar: <strong class="font-mono text-base text-[#B85D38]">${formatRupiah(order.amountDue ?? order.paidAmount)}</strong></p>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button type="button" onclick="checkMidtransQrisStatus('${escapeHtml(order.id)}', false)"
+                  class="btn-primary px-4 py-2 text-[11px] font-semibold cursor-pointer inline-flex items-center gap-1.5">
+                  <i class="ph ph-arrows-clockwise"></i><span>Cek Status Bayar</span>
+                </button>
+                ${
+                  isSandbox
+                    ? `<button type="button" onclick="simulateSandboxQrisPay('${escapeHtml(order.id)}')"
+                        class="btn-accent px-4 py-2 text-[11px] font-semibold cursor-pointer inline-flex items-center gap-1.5">
+                        <i class="ph ph-lightning"></i><span>Simulasi Bayar Sandbox (1-Klik)</span>
+                      </button>
+                       <button type="button" onclick="copyTextToClipboard('${escapeHtml(order.midtransQrUrl)}', 'URL QRIS Sandbox')"
+                        class="btn-outline px-3 py-2 text-[11px] font-semibold cursor-pointer">Salin URL QRIS</button>
+                       <button type="button" onclick="requestMidtransQris('${escapeHtml(order.id)}', true)"
+                        class="btn-outline px-3 py-2 text-[11px] font-semibold cursor-pointer">Perbarui QR</button>
+                       <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank" rel="noopener noreferrer"
+                        class="btn-outline px-3 py-2 text-[11px] font-semibold text-[#B85D38] border-[#B85D38] inline-flex items-center gap-1">
+                        <span>Buka Simulator v2</span><i class="ph ph-arrow-up-right"></i>
+                      </a>`
+                    : ''
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        const qrReason = qrisConfigMissing
+          ? 'Server Midtrans belum dikonfigurasi (MIDTRANS_SERVER_KEY kosong).'
+          : (qrisErrorMsg || 'Terjadi kendala sementara saat memuat kode QRIS.');
+        qrisCardHtml = `
+          <div class="p-5 bg-[#FAF6EE] border border-[#D5C9BA] rounded-2xl space-y-3 text-xs">
+            <div class="flex items-start gap-3">
+              <i class="ph ${isExpired ? 'ph-clock-countdown' : 'ph-warning-circle'} text-xl text-[#B85D38] shrink-0 mt-0.5"></i>
+              <div class="space-y-1.5">
+                <p class="font-semibold text-[#1F1C1B] text-sm">
+                  ${isExpired ? 'Kode QRIS Sudah Kedaluwarsa' : 'Kode QRIS Belum Berhasil Dimuat'}
+                </p>
+                <p class="text-[#6A625B] leading-relaxed">
+                  ${
+                    isExpired
+                      ? 'Batas waktu scan kode QRIS (15 menit) telah berakhir. Klik tombol <strong>Buat Ulang QRIS</strong> di bawah untuk mendapatkan kode QRIS baru.'
+                      : escapeHtml(qrReason)
+                  }
+                </p>
+                ${qrisConfigMissing ? '<p class="text-[#6A625B] leading-relaxed">Sebagai gantinya tampil <strong>QRIS Lokal (verifikasi manual)</strong> di bawah: scan untuk menyimpan detail tagihan, transfer sesuai nominal, lalu unggah bukti bayar agar Admin bisa verifikasi.</p>' : ''}
+              </div>
+            </div>
+            ${
+              qrisConfigMissing
+                ? `<div class="flex flex-col sm:flex-row items-center gap-4 p-3 bg-white border border-[#E6DDD0] rounded-2xl">
+                    <div class="text-center shrink-0">
+                      <p class="font-mono text-[10px] font-bold text-[#1F1C1B] mb-1">QRIS LOKAL · VERIFIKASI MANUAL</p>
+                      <img id="qris-fallback-img" alt="QRIS lokal verifikasi manual Azzatul Bouquet" class="w-44 h-44 object-contain bg-white rounded-lg" />
+                      <p class="font-mono text-[10px] text-[#6A625B] mt-1">${escapeHtml(PAYMENT_ACCOUNTS.qrisMerchant || 'Azzatul Bouquet')}</p>
+                    </div>
+                    <p class="text-[#6A625B] leading-relaxed">Nominal tidak otomatis terisi. Transfer sebesar <strong class="font-mono text-[#1F1C1B]">${formatRupiah(order.amountDue ?? order.paidAmount)}</strong> lalu unggah bukti pembayaran di langkah 2 berikut ini.</p>
+                  </div>`
+                : ''
+            }
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="requestMidtransQris('${escapeHtml(order.id)}', true)"
+                class="btn-primary px-5 py-2.5 text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5">
+                <i class="ph ph-qr-code"></i><span>${isExpired ? 'Buat Ulang QRIS' : 'Muat Ulang QRIS'}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      successView.innerHTML = `
+        <div class="bg-white border border-[#E6DDD0] rounded-3xl p-6 sm:p-10 max-w-3xl mx-auto space-y-6">
+          <div class="text-center space-y-2 border-b border-[#E6DDD0] pb-5">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isPaid ? 'bg-[#E9F2EC] text-[#2E5940]' : 'bg-[#FBF2E6] text-[#B85D38]'} text-[11px] font-semibold">
+              <i class="ph ${isPaid ? 'ph-check-circle' : 'ph-clock'}"></i><span>${isPaid ? `Pembayaran Selesai (${escapeHtml(order.paymentStatus)}) · ${escapeHtml(order.status)}` : 'Menunggu Pembayaran &amp; Verifikasi'}</span>
+            </span>
+            <h1 class="font-display text-3xl sm:text-4xl text-[#1F1C1B]">${isPaid ? `Pembayaran Diterima, ${escapeHtml(order.customerName)}` : `Pesanan Dibuat, ${escapeHtml(order.customerName)}`}</h1>
+            <p class="font-mono text-sm font-bold text-[#B85D38]">${escapeHtml(order.id)} · ${rankStr}</p>
+          </div>
+
+          <!-- Ringkasan Order Singkat -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-[#FAF6EE] p-4 rounded-2xl border border-[#E6DDD0]">
+            <div class="space-y-1">
+              <p class="text-[#6A625B]">Buket &amp; Jadwal</p>
+              <p class="font-semibold text-[#1F1C1B]">${escapeHtml(item.name || 'Buket Custom')}</p>
+              <p class="text-[#6A625B]">${escapeHtml(order.pickupDate)} (${escapeHtml(order.deliveryType.split('(')[0].trim())})</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-[#6A625B]">Total Tagihan (${escapeHtml(order.paymentMethod)})</p>
+              <p class="font-mono text-base font-bold text-[#B85D38]">${formatRupiah(order.totalPrice)}</p>
+              <p class="text-[#6A625B]">Dibayar sekarang: <strong class="font-mono text-[#1F1C1B]">${formatRupiah(order.paidAmount)}</strong></p>
+            </div>
+          </div>
+
+          <!-- Instruksi Pembayaran -->
+          <div class="space-y-2">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">${isPaid ? '1. Status Pembayaran' : `1. Lakukan Pembayaran (${escapeHtml(order.paymentMethod)})`}</h2>
+            ${isPaid ? verifiedPaidCardHtml : qrisCardHtml}
+          </div>
+
+          <!-- Upload Bukti Pembayaran -->
+          <div class="space-y-3 pt-2 border-t border-[#E6DDD0]">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">2. Unggah Bukti Pembayaran ${isPaid ? '<span class="text-xs font-sans font-normal text-[#2E5940]">(Opsional — sudah terverifikasi Midtrans)</span>' : ''}</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+              <div class="sm:col-span-7">
+                <label class="block border-2 border-dashed ${hasProof ? 'border-[#2E5940] bg-[#E9F2EC]/40' : 'border-[#D5C9BA] bg-[#FAF6EE] hover:border-[#B85D38]'} rounded-2xl p-5 text-center cursor-pointer transition">
+                  <i class="ph ${hasProof ? 'ph-check-circle text-[#2E5940]' : 'ph-upload-simple text-[#B85D38]'} text-2xl block mb-1"></i>
+                  <span class="block text-xs font-semibold text-[#1F1C1B]">
+                    ${hasProof ? `Terunggah: ${escapeHtml(order.paymentProofName || 'bukti-bayar.jpg')} (Klik untuk ganti)` : 'Pilih Foto / Screenshot Bukti Bayar'}
+                  </span>
+                  <span class="block text-[10px] text-[#6A625B] mt-0.5">Tersimpan ke data pesanan &amp; siap dikirim ke WhatsApp admin</span>
+                  <input id="invoice-proof-input" type="file" accept="image/*" onchange="handleInvoiceProofUpload(event)" class="hidden" />
+                </label>
+              </div>
+              <div class="sm:col-span-5">
+                ${
+                  hasProof
+                    ? `<img src="${escapeHtml(order.paymentProofImage)}" alt="Bukti Pembayaran" class="w-full h-32 object-cover rounded-2xl border border-[#E6DDD0]" />`
+                    : `<div class="h-32 rounded-2xl border border-[#E6DDD0] bg-[#FAF6EE] flex items-center justify-center text-[11px] text-[#6A625B]">Pratinjau bukti bayar</div>`
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-4 border-t border-[#E6DDD0] flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+              ${isPaid ? '' : `<button type="button" onclick="backToCheckoutForm()" class="btn-outline px-4 py-2.5 text-xs font-semibold cursor-pointer">
+                ← Ubah Data Pemesan
+              </button>`}
+              <button type="button" onclick="openReceiptModal('${escapeHtml(order.id)}', true)" class="btn-outline px-4 py-2.5 text-xs font-semibold cursor-pointer">
+                Cetak Nota
+              </button>
+              <button type="button" onclick="finishAndLeaveInvoice()" class="btn-outline px-4 py-2.5 text-xs font-semibold cursor-pointer">
+                Kembali ke Beranda
+              </button>
+            </div>
+            <button type="button" onclick="sendOrderAndProofToWhatsApp()"
+              class="px-6 py-3 rounded-full bg-[#2E5940] hover:bg-[#224430] text-white text-xs sm:text-sm font-semibold cursor-pointer inline-flex items-center gap-2 transition">
+              <i class="ph ph-whatsapp-logo text-base"></i>
+              <span>Kirim Detail &amp; Bukti ke WA Admin</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-[#6A625B] text-right">
+            Tujuan WA Admin: <strong class="font-mono text-[#1F1C1B]">${escapeHtml(PAYMENT_ACCOUNTS.studioWaDisplay)}</strong>
+          </p>
+        </div>
+      `;
+
+      // Render QRIS images locally with the bundled QRCode lib (no third-party QR service)
+      renderLocalQrisImages(order, { isPaid, isExpired, qrisLoading });
+    }
+
+    async function renderLocalQrisImages(order, state) {
+      if (typeof QRCode === 'undefined' || typeof QRCode.toDataURL !== 'function') return;
+      const jobs = [];
+      if (order.midtransQrString && !state.isPaid && !state.qrisLoading && !state.isExpired) {
+        jobs.push({ id: 'qris-local-img', data: order.midtransQrString });
+      }
+      if (qrisConfigMissing && !state.isPaid) {
+        const due = Number(order.amountDue ?? order.paidAmount ?? order.totalPrice ?? 0);
+        jobs.push({
+          id: 'qris-fallback-img',
+          data: `AZZATUL BOUQUET - QRIS LOKAL (VERIFIKASI MANUAL)\nPesanan: ${order.id}\nTotal Tagihan: ${formatRupiah(order.totalPrice)}\nNominal Bayar: ${formatRupiah(due)}\nUnggah bukti bayar di halaman checkout untuk verifikasi.`,
+        });
+      }
+      for (const job of jobs) {
+        try {
+          const url = await QRCode.toDataURL(job.data, { width: 280, margin: 2 });
+          const el = document.getElementById(job.id);
+          if (el) el.src = url;
+        } catch (err) {
+          const el = document.getElementById(job.id);
+          if (el && el.parentElement) {
+            el.parentElement.innerHTML = '<p class="text-[11px] text-[#B85D38] px-2">Gagal membuat gambar QRIS. Kirim detail pesanan &amp; bukti transfer via WhatsApp Admin.</p>';
+          }
+        }
+      }
+    }
+
+    function downloadDynamicQrisPng(orderId) {
+      const canvas = document.getElementById('dynamic-qris-canvas');
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = `QRIS-${orderId || 'AzzatulBouquet'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Gambar QRIS dengan nominal otomatis berhasil disimpan!', 'success');
+    }
+
+    // Real-time cross-tab sync: if Admin verifies payment or updates order status in /admin,
+    // immediately update the customer's invoice page without needing manual refresh!
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEYS.ORDERS && activeOrderObj) {
+        const latest = getOrders().find((o) => o.id === activeOrderObj.id);
+        if (latest) {
+          activeOrderObj = latest;
+          renderCheckoutInvoice(latest);
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', initCheckoutPage);
+  </script>
+</body>
+</html>

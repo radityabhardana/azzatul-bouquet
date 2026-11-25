@@ -1,0 +1,1667 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AZZATUL BOUQUET — Studio Buket Custom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <style>
+    :root {
+      --ink: #F7EFDD;
+      --ink-inv: #1F1C1B;
+      --gold: #E0A33A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #14110F;
+      color: var(--ink);
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Full-bleed continuously gliding multi-photo filmstrip background */
+    .bg-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: #14110F;
+      display: flex;
+      align-items: center;
+    }
+
+    .bg-filmstrip {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 82px 0 32px;
+      height: 100dvh;
+      width: max-content;
+      will-change: transform;
+      animation: filmstripGlide 46s linear infinite;
+    }
+
+    .bg-film-card {
+      position: relative;
+      height: 92%;
+      width: clamp(250px, 26vw, 390px);
+      flex-shrink: 0;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #1F1C1B;
+      border: 1px solid rgba(247, 239, 221, 0.14);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .bg-film-card:nth-child(even) {
+      transform: translateY(18px);
+    }
+
+    .bg-film-card:nth-child(odd) {
+      transform: translateY(-14px);
+    }
+
+    .bg-film-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: brightness(0.82) saturate(1.06);
+    }
+
+    .bg-film-tag {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(20, 17, 15, 0.52);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 0.5px solid rgba(247, 239, 221, 0.22);
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(247, 239, 221, 0.92);
+      letter-spacing: 0.01em;
+    }
+
+    @keyframes filmstripGlide {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+
+    .bg-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 18% 82%, rgba(16, 13, 11, 0.86) 0%, rgba(16, 13, 11, 0.44) 48%, transparent 78%),
+        linear-gradient(180deg, rgba(16, 13, 11, 0.42) 0%, rgba(16, 13, 11, 0.08) 42%, rgba(16, 13, 11, 0.72) 100%);
+      pointer-events: none;
+    }
+
+    /* Clean Top Bar */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      padding: 20px clamp(28px, 4vw, 56px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(20, 17, 15, 0.72) 0%, rgba(20, 17, 15, 0.24) 62%, rgba(20, 17, 15, 0) 100%);
+      pointer-events: none;
+    }
+
+    .brand-lockup {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: rgba(20, 17, 15, 0.56);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(247, 239, 221, 0.18);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* Bottom-Left Hero Anchor (Uncluttered & Calm) */
+    .hero-anchor {
+      position: fixed;
+      left: clamp(32px, 4vw, 56px);
+      bottom: 68px;
+      z-index: 10;
+      max-width: min(560px, calc(100vw - 420px));
+    }
+
+    .hero-title {
+      font-family: 'Hedvig Letters Serif', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(38px, 4.8vw, 70px);
+      line-height: 1.04;
+      letter-spacing: -0.015em;
+      text-wrap: balance;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-size: 16.5px;
+      line-height: 1.52;
+      color: rgba(247, 239, 221, 0.88);
+      max-width: 460px;
+      margin-bottom: 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--ink-inv);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .cta-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34);
+    }
+
+    .cta-secondary {
+      color: rgba(247, 239, 221, 0.88);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(247, 239, 221, 0.36);
+      padding-bottom: 2px;
+      transition: color 150ms ease, border-color 150ms ease;
+    }
+
+    .cta-secondary:hover {
+      color: #fff;
+      border-color: #fff;
+    }
+
+    /* Bottom-Right Compact Map Card */
+    .location-dock {
+      position: fixed;
+      right: clamp(28px, 3.5vw, 48px);
+      bottom: 56px;
+      z-index: 15;
+      width: clamp(252px, 25vw, 300px);
+      border-radius: 20px;
+      padding: 12px;
+      background: rgba(20, 17, 15, 0.54);
+      backdrop-filter: blur(18px) saturate(1.4);
+      -webkit-backdrop-filter: blur(18px) saturate(1.4);
+      border: 1px solid rgba(247, 239, 221, 0.2);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .location-map-frame {
+      width: 100%;
+      height: 145px;
+      border: 0;
+      border-radius: 12px;
+      display: block;
+      background: #1F1C1B;
+    }
+
+    .location-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(247, 239, 221, 0.9);
+      padding: 0 2px;
+    }
+
+    .location-meta a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+
+    .location-meta a:hover {
+      text-decoration: underline;
+    }
+
+    /* Bottom-Center Minimal Pull-Up About Trigger */
+    .about-trigger-btn {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      z-index: 25;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      background: transparent;
+      border: none;
+      color: rgba(247, 239, 221, 0.78);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 200ms ease, transform 200ms ease;
+    }
+
+    .about-trigger-btn .pull-bar {
+      width: 32px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(247, 239, 221, 0.45);
+      transition: width 220ms ease, background 220ms ease;
+    }
+
+    .about-trigger-btn:hover {
+      color: #fff;
+      transform: translateX(-50%) translateY(-3px);
+    }
+
+    .about-trigger-btn:hover .pull-bar {
+      width: 44px;
+      background: var(--gold);
+    }
+
+    /* Full-Screen Bottom-to-Top Warm Cream Editorial Sheet */
+    .about-curtain {
+      position: fixed;
+      inset: 16px 16px 0 16px;
+      z-index: 50;
+      border-radius: 28px 28px 0 0;
+      background: #FAF6EE;
+      color: #1F1C1B;
+      box-shadow: 0 -24px 80px rgba(0, 0, 0, 0.55);
+      transform: translateY(105%);
+      transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+      display: block;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #CFC3B4 transparent;
+      padding: 0 56px 40px;
+      pointer-events: none;
+    }
+
+    .about-curtain::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .about-curtain::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 26px 0 10px;
+    }
+
+    .about-curtain::-webkit-scrollbar-thumb {
+      background: #CFC3B4;
+      border-radius: 999px;
+      border: 3px solid transparent;
+      background-clip: content-box;
+    }
+
+    .about-curtain::-webkit-scrollbar-thumb:hover {
+      background: #B85D38;
+      border: 3px solid transparent;
+      background-clip: content-box;
+    }
+
+    .about-curtain.is-open {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .about-inner {
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 64px;
+    }
+
+    .about-top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(250, 246, 238, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 0 16px;
+      border-bottom: 1px solid #E6DDD0;
+    }
+
+    .sheet-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sheet-nav-links a {
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #6A625B;
+      text-decoration: none;
+      transition: background 160ms ease, color 160ms ease;
+    }
+
+    .sheet-nav-links a:hover {
+      background: #F3ECE0;
+      color: #1F1C1B;
+    }
+
+    .sheet-section {
+      scroll-margin-top: 86px;
+    }
+
+    .sheet-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #B85D38;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .sheet-title {
+      font-family: 'Hedvig Letters Serif', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(26px, 2.8vw, 38px);
+      line-height: 1.12;
+      letter-spacing: -0.015em;
+      color: #1F1C1B;
+    }
+
+    .sheet-section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .catalog-card {
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+    }
+
+    .catalog-card:hover {
+      transform: translateY(-4px);
+      border-color: #B85D38;
+      box-shadow: 0 14px 30px rgba(31, 28, 27, 0.08);
+    }
+
+    .catalog-card-img {
+      aspect-ratio: 4 / 4.2;
+      overflow: hidden;
+      background: #F3ECE0;
+    }
+
+    .catalog-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 350ms ease;
+    }
+
+    .catalog-card:hover .catalog-card-img img {
+      transform: scale(1.05);
+    }
+
+    .catalog-card-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .catalog-card-title {
+      font-family: 'Hedvig Letters Serif', Georgia, serif;
+      font-size: 17px;
+      color: #1F1C1B;
+      line-height: 1.2;
+    }
+
+    .catalog-card-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #B85D38;
+    }
+
+    .catalog-card-desc {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #6A625B;
+      margin-top: 2px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .step-card {
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #B85D38;
+      background: #FAF6EE;
+      border: 1px solid #E6DDD0;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .step-card h3 {
+      font-family: 'Hedvig Letters Serif', Georgia, serif;
+      font-size: 19px;
+      font-weight: 400;
+      color: #1F1C1B;
+    }
+
+    .step-card p {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #6A625B;
+    }
+
+    .reviews-marquee-wrap {
+      overflow: hidden;
+      width: 100%;
+      padding: 6px 0 12px;
+      mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    }
+
+    .reviews-track {
+      display: flex;
+      gap: 16px;
+      width: max-content;
+      animation: reviewMarquee 42s linear infinite;
+      will-change: transform;
+    }
+
+    .reviews-marquee-wrap:hover .reviews-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes reviewMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .review-card {
+      width: 340px;
+      flex: 0 0 auto;
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .review-card:hover {
+      border-color: #B85D38;
+      box-shadow: 0 10px 24px rgba(31, 28, 27, 0.06);
+    }
+
+    .review-stars {
+      color: #E0A33A;
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .review-quote {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #1F1C1B;
+    }
+
+    .review-author {
+      padding-top: 12px;
+      border-top: 1px solid #F3ECE0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .review-author strong {
+      color: #1F1C1B;
+      font-weight: 600;
+    }
+
+    .review-author span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: #B85D38;
+    }
+
+    .visit-faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .visit-card {
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      border-radius: 22px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .visit-map {
+      width: 100%;
+      height: 300px;
+      border: 1px solid #E6DDD0;
+      border-radius: 14px;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .faq-item {
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      border-radius: 16px;
+      padding: 15px 18px;
+    }
+
+    .faq-item summary {
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1F1C1B;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item p {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #F3ECE0;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #6A625B;
+    }
+
+    .about-close-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #1F1C1B;
+      border: none;
+      color: #FAF6EE;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .about-close-btn:hover {
+      opacity: 0.88;
+      transform: translateY(1px);
+    }
+
+    .about-body {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 56px;
+      align-items: center;
+      margin: auto 0;
+    }
+
+    .about-photos {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .about-photo-tall {
+      height: 360px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #E6DDD0;
+    }
+
+    .about-photo-stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      height: 360px;
+    }
+
+    .about-photo-small {
+      min-height: 0;
+      height: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #E6DDD0;
+    }
+
+    .about-photos img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .about-heading {
+      font-family: 'Hedvig Letters Serif', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(34px, 3.8vw, 52px);
+      line-height: 1.06;
+      letter-spacing: -0.015em;
+      color: #1F1C1B;
+      margin-bottom: 16px;
+    }
+
+    .about-desc {
+      font-size: 15px;
+      line-height: 1.65;
+      color: #6A625B;
+      margin-bottom: 24px;
+      max-width: 480px;
+    }
+
+    .about-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      padding: 18px 0;
+      border-top: 1px solid #E6DDD0;
+      border-bottom: 1px solid #E6DDD0;
+      margin-bottom: 24px;
+    }
+
+    .about-metric span {
+      display: block;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #B85D38;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .about-metric p {
+      font-size: 13px;
+      color: #1F1C1B;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .about-cta-dark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      background: #1F1C1B;
+      color: #FAF6EE;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .about-cta-dark:hover {
+      background: #B85D38;
+      transform: translateY(-1px);
+    }
+
+    .about-wa-link {
+      color: #1F1C1B;
+      font-size: 13.5px;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid #D5C9BA;
+      padding-bottom: 2px;
+      transition: border-color 150ms ease, color 150ms ease;
+    }
+
+    .about-wa-link:hover {
+      color: #B85D38;
+      border-color: #B85D38;
+    }
+
+    .about-footer {
+      border-top: 1px solid #E6DDD0;
+      padding: 48px 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      color: #6A625B;
+    }
+
+    .sheet-footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 1.1fr 1fr;
+      gap: 32px;
+    }
+
+    .sheet-footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sheet-footer-heading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #B85D38;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sheet-footer-col a,
+    .sheet-footer-col p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #6A625B;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 150ms ease;
+    }
+
+    .sheet-footer-col a:hover {
+      color: #1F1C1B;
+    }
+
+    .sheet-footer-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .sheet-footer-badges span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1px solid #E6DDD0;
+      color: #1F1C1B;
+    }
+
+    .sheet-footer-bottom {
+      padding-top: 18px;
+      border-top: 1px solid #E6DDD0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: #5C544D;
+    }
+
+    @media (min-width: 901px) and (max-height: 680px) {
+      html, body {
+        overflow-y: auto;
+        height: auto;
+        min-height: 100dvh;
+      }
+      .hero-stage {
+        position: relative;
+        z-index: 10;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) clamp(248px, 25vw, 296px);
+        grid-template-rows: 1fr auto;
+        align-items: end;
+        gap: 16px 32px;
+        padding: 80px clamp(32px, 4vw, 56px) 16px;
+      }
+      .hero-anchor {
+        position: static;
+        max-width: 560px;
+      }
+      .hero-title {
+        font-size: clamp(32px, 3.8vw, 46px);
+        margin-bottom: 12px;
+      }
+      .hero-sub {
+        font-size: 14.5px;
+        margin-bottom: 18px;
+      }
+      .cta-pill {
+        padding: 12px 24px;
+        font-size: 14px;
+      }
+      .location-dock {
+        position: static;
+        width: 100%;
+      }
+      .location-map-frame {
+        height: 112px;
+      }
+      .about-trigger-btn {
+        position: static;
+        transform: none;
+        grid-column: 1 / -1;
+        justify-self: center;
+        margin: 0;
+      }
+      .about-trigger-btn:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      html, body {
+        overflow-y: auto;
+        height: auto;
+        min-height: 100%;
+      }
+      .top-nav {
+        padding: 12px 20px;
+        background: rgba(20, 17, 15, 0.82);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgba(247, 239, 221, 0.12);
+        pointer-events: auto;
+      }
+      .brand-lockup {
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .bg-filmstrip { padding: 64px 0 20px; gap: 12px; }
+      .bg-film-card { width: 64vw; height: 84%; border-radius: 18px; }
+      .bg-film-card:nth-child(even), .bg-film-card:nth-child(odd) { transform: none; }
+      .hero-anchor {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        padding: 88px 20px 20px;
+        max-width: none;
+      }
+      .hero-title { font-size: clamp(34px, 9vw, 44px); }
+      .hero-sub { font-size: 14.5px; margin-bottom: 20px; }
+      .cta-pill { padding: 12px 22px; font-size: 14px; }
+      .location-dock {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: calc(100% - 40px);
+        margin: 8px 20px 20px;
+      }
+      .location-map-frame { height: 155px; }
+      .about-trigger-btn {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        transform: none;
+        margin: 4px auto 28px;
+        display: flex;
+        width: fit-content;
+      }
+      .about-trigger-btn:hover { transform: none; }
+      .about-curtain {
+        inset: 12px 0 0 0;
+        border-radius: 24px 24px 0 0;
+        padding: 0 20px 32px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .about-inner { height: auto; gap: 38px; }
+      .about-top-bar {
+        flex-wrap: wrap;
+        padding: 16px 0 12px;
+        gap: 10px 12px;
+      }
+      .sheet-nav-links {
+        display: flex;
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 6px;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sheet-nav-links::-webkit-scrollbar { display: none; }
+      .sheet-nav-links a {
+        flex-shrink: 0;
+        background: #F3ECE0;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .sheet-section { scroll-margin-top: 118px; }
+      .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .review-card { width: 280px; padding: 18px; }
+      .visit-faq-grid { grid-template-columns: 1fr; gap: 16px; }
+      .visit-map { height: 240px; }
+      .sheet-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+      .about-body {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        margin: 0;
+      }
+      .about-photos { grid-template-columns: 1.1fr 0.9fr; gap: 10px; }
+      .about-photo-tall { height: 200px; }
+      .about-photo-stack { height: 200px; gap: 10px; }
+      .about-heading { font-size: 32px; }
+      .about-desc { font-size: 14px; margin-bottom: 18px; }
+      .about-metrics { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px 0; }
+      .about-metric p { font-size: 11.5px; }
+    }
+
+    @media (max-width: 520px) {
+      .about-metrics { grid-template-columns: 1fr; gap: 10px; }
+      .catalog-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .sheet-footer-grid { grid-template-columns: 1fr; gap: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-filmstrip,
+      .reviews-track {
+        animation-play-state: paused !important;
+        animation: none !important;
+      }
+      .about-curtain {
+        transition-duration: 0.01ms !important;
+      }
+      html,
+      .about-curtain {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Full-bleed atmospheric background slideshow -->
+  <div id="bg-stage" class="bg-stage" aria-hidden="true"></div>
+  <div class="bg-scrim" aria-hidden="true"></div>
+
+  <!-- Minimal Top Nav -->
+  <header class="top-nav">
+    <a href="index.html" class="brand-lockup" aria-label="Azzatul Bouquet">
+      <span style="font-family:'Hedvig Letters Serif',Georgia,serif;font-size:24px;font-weight:400;letter-spacing:-0.02em;color:var(--ink);">
+        Azzatul Bouquet<span style="color:var(--gold);">.</span>
+      </span>
+    </a>
+  </header>
+
+  <main class="hero-stage">
+    <!-- Bottom-Left Hero Anchor -->
+    <section class="hero-anchor">
+      <h1 class="hero-title">Buket custom sesuai isi hatimu.</h1>
+
+      <p id="hero-sub-text" class="hero-sub">
+        Bebas pilih isi snack favorit, pecahan uang kertas, foto polaroid, boneka, hingga Rangkaian Bunga yang awet selamanya.
+      </p>
+
+      <div class="hero-actions">
+        <a id="hero-primary-cta" href="customize.html?step=2" class="cta-pill">
+          <span>Mulai Rangkai</span>
+          <i class="ph ph-arrow-right"></i>
+        </a>
+        <a href="customize.html" class="cta-secondary">Lihat semua template</a>
+      </div>
+    </section>
+
+    <!-- Bottom-Right Compact Location Map Card -->
+    <aside class="location-dock" aria-label="Lokasi Toko Azzatul Bouquet">
+      <div class="location-meta">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+          <i class="ph ph-map-pin" style="color:var(--gold);font-size:14px;"></i>
+          <span>Lokasi Toko</span>
+        </span>
+        <a href="https://www.google.com/maps/place/6%C2%B026'52.3%22S+106%C2%B057'38.2%22E/@-6.4478556,106.9580317,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-6.4478556!4d106.9606066" target="_blank" rel="noopener noreferrer">
+          Buka Maps ↗
+        </a>
+      </div>
+      <iframe
+        class="location-map-frame"
+        title="Lokasi Toko Azzatul Bouquet"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://maps.google.com/maps?q=-6.4478556,106.9606066&z=17&output=embed">
+      </iframe>
+    </aside>
+
+    <!-- Bottom-Center Minimal Pull-Up Explore Trigger -->
+    <button type="button" onclick="openAboutCurtain()" class="about-trigger-btn" aria-controls="about-curtain" aria-expanded="false">
+      <i class="ph ph-caret-up" style="font-size:13px;color:var(--gold);"></i>
+      <span>Jelajahi</span>
+      <span class="pull-bar"></span>
+    </button>
+  </main>
+
+  <!-- Bottom-to-Top Warm Cream Editorial Sheet (Full Showcase: Tentang, Katalog, Cara Pesan, Ulasan, Lokasi & FAQ) -->
+  <div id="about-curtain" class="about-curtain" role="dialog" aria-modal="true" aria-label="Informasi &amp; Katalog Azzatul Bouquet" aria-hidden="true" inert>
+    <div class="about-inner">
+      <div class="about-top-bar">
+        <span style="font-family:'Hedvig Letters Serif',Georgia,serif;font-size:24px;letter-spacing:-0.02em;color:#1F1C1B;">
+          Azzatul Bouquet<span style="color:#B85D38;">.</span>
+        </span>
+        <nav class="sheet-nav-links" aria-label="Navigasi Halaman">
+          <a href="#sheet-tentang">Tentang</a>
+          <a href="#sheet-katalog">Jenis Buket</a>
+          <a href="#sheet-cara">Cara Pesan</a>
+          <a href="#sheet-ulasan">Ulasan</a>
+          <a href="#sheet-lokasi">Lokasi &amp; FAQ</a>
+        </nav>
+        <button type="button" onclick="closeAboutCurtain()" class="about-close-btn">
+          <span>Tutup</span>
+          <i class="ph ph-arrow-down"></i>
+        </button>
+      </div>
+
+      <!-- 1. TENTANG AZZATUL BOUQUET -->
+      <section id="sheet-tentang" class="about-body sheet-section">
+        <div class="about-photos">
+          <div class="about-photo-tall">
+            <img src="assets/snack-bouquet.jpg" alt="Buket Snack Azzatul Bouquet" onerror="if(window.handleImgError)handleImgError(this)" />
+          </div>
+          <div class="about-photo-stack">
+            <div class="about-photo-small">
+              <img src="assets/money-bouquet.jpg" alt="Money Bouquet Azzatul Bouquet" onerror="if(window.handleImgError)handleImgError(this)" />
+            </div>
+            <div class="about-photo-small">
+              <img src="assets/polaroid-bouquet.jpg" alt="Buket Foto Polaroid Azzatul Bouquet" onerror="if(window.handleImgError)handleImgError(this)" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="sheet-kicker">Tentang Azzatul Bouquet</p>
+          <h2 class="about-heading">Dirangkai khusus, awet selamanya.</h2>
+          <p class="about-desc">
+            Kami membuat buket custom yang bisa diisi sesuai seleramu—mulai dari snack populer (Tango, Beng-Beng, SilverQueen), uang kertas dengan slot plastik aman tanpa lem, foto polaroid, boneka wisuda, hingga Rangkaian Bunga. Setiap pesanan diproses rapi sesuai urutan antrean (FIFO) dan sudah termasuk kartu ucapan A6 gratis.
+          </p>
+
+          <div class="about-metrics">
+            <div class="about-metric">
+              <span>Isi Custom</span>
+              <p>Snack, Uang, Foto &amp; Rangkaian Bunga</p>
+            </div>
+            <div class="about-metric">
+              <span>Pembayaran</span>
+              <p>100% QRIS Otomatis (E-Wallet &amp; M-Banking)</p>
+            </div>
+            <div class="about-metric">
+              <span>Jam Buka</span>
+              <p>Setiap Hari · 08.00–19.00 WIB</p>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;">
+            <a href="customize.html?step=2" class="about-cta-dark">
+              <span>Mulai Rangkai</span>
+              <i class="ph ph-arrow-right"></i>
+            </a>
+            <a href="https://wa.me/62881024911087" target="_blank" rel="noopener noreferrer" class="about-wa-link">
+              WhatsApp +62 881-0249-11087
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. PILIHAN JENIS BUKET (KATALOG UNGGULAN) -->
+      <section id="sheet-katalog" class="sheet-section" style="border-top:1px solid #E6DDD0;padding-top:44px;">
+        <div class="sheet-section-head">
+          <div>
+            <p class="sheet-kicker">Pilihan Isi Buket</p>
+            <h2 class="sheet-title">Pilih kategori, lalu custom sesukamu.</h2>
+          </div>
+        </div>
+
+        <div class="catalog-grid">
+          <a href="customize.html?step=2&type=snack" class="catalog-card">
+            <div class="catalog-card-img"><img src="assets/snack-bouquet.jpg" alt="Buket Snack Populer" onerror="if(window.handleImgError)handleImgError(this)" /></div>
+            <div class="catalog-card-body">
+              <span class="catalog-card-price">Mulai Rp 62.500</span>
+              <h3 class="catalog-card-title">Snack Populer</h3>
+              <p class="catalog-card-desc">Pilih per item mulai Rp 4.500 — Tango, Beng-Beng, SilverQueen, Pocky &amp; Oreo.</p>
+            </div>
+          </a>
+
+          <a href="customize.html?step=2&type=money" class="catalog-card">
+            <div class="catalog-card-img"><img src="assets/money-bouquet.jpg" alt="Money Bouquet" onerror="if(window.handleImgError)handleImgError(this)" /></div>
+            <div class="catalog-card-body">
+              <span class="catalog-card-price">Rp 2rb – 100rb</span>
+              <h3 class="catalog-card-title">Money Bouquet</h3>
+              <p class="catalog-card-desc">Slot plastik rapi aman tanpa lem, uang tetap mulus.</p>
+            </div>
+          </a>
+
+          <a href="customize.html?step=2&type=photo" class="catalog-card">
+            <div class="catalog-card-img"><img src="assets/polaroid-bouquet.jpg" alt="Buket Foto Polaroid" onerror="if(window.handleImgError)handleImgError(this)" /></div>
+            <div class="catalog-card-body">
+              <span class="catalog-card-price">Rp 7.500 / foto</span>
+              <h3 class="catalog-card-title">Buket Foto</h3>
+              <p class="catalog-card-desc">Cetak polaroid laminasi anti pudar + pita &amp; LED warm.</p>
+            </div>
+          </a>
+
+          <a href="customize.html?step=2&type=artificial" class="catalog-card">
+            <div class="catalog-card-img"><img src="assets/artificial-bouquet.jpg" alt="Rangkaian Bunga" onerror="if(window.handleImgError)handleImgError(this)" /></div>
+            <div class="catalog-card-body">
+              <span class="catalog-card-price">Rp 10.500 / tangkai</span>
+              <h3 class="catalog-card-title">Rangkaian Bunga</h3>
+              <p class="catalog-card-desc">Bunga pita satin &amp; silk elegan yang awet selamanya.</p>
+            </div>
+          </a>
+
+          <a href="customize.html?step=2&type=mix" class="catalog-card">
+            <div class="catalog-card-img"><img src="assets/mix-bouquet.jpg" alt="Mix Custom" onerror="if(window.handleImgError)handleImgError(this)" /></div>
+            <div class="catalog-card-body">
+              <span class="catalog-card-price">Bebas Padukan</span>
+              <h3 class="catalog-card-title">Mix Custom</h3>
+              <p class="catalog-card-desc">Gabungkan snack, boneka, parfum mini, foto &amp; bunga.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- 3. CARA PESAN MUDAH -->
+      <section id="sheet-cara" class="sheet-section" style="border-top:1px solid #E6DDD0;padding-top:44px;">
+        <div class="sheet-section-head">
+          <div>
+            <p class="sheet-kicker">Alur Pemesanan</p>
+            <h2 class="sheet-title">4 langkah mudah tanpa perlu bikin akun.</h2>
+          </div>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">01</span>
+            <h3>Pilih Jenis &amp; Isi</h3>
+            <p>Mulai dari template siap pakai atau pilih sendiri snack, uang, foto, boneka, hingga Rangkaian Bunga.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">02</span>
+            <h3>Atur Wrapping</h3>
+            <p>Tentukan ukuran Petite (5) hingga Deluxe (20), gaya Korean Multi-Layer, Round Dome, atau Classic Minimalist, serta warna pita.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">03</span>
+            <h3>Kartu Ucapan Gratis</h3>
+            <p>Tulis pesan untuk penerima—langsung dicetak di kartu A6 tebal gratis dan diselipkan rapi di buket.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">04</span>
+            <h3>QRIS Otomatis &amp; Antrean</h3>
+            <p>Pilih Ambil di Tempat atau Pengiriman, scan QRIS otomatis 100% terverifikasi instan, lalu pesanan masuk Antrean FIFO.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ULASAN PELANGGAN (AUTO-SCROLL MARQUEE) -->
+      <section id="sheet-ulasan" class="sheet-section" style="border-top:1px solid #E6DDD0;padding-top:44px;">
+        <div class="sheet-section-head">
+          <div>
+            <p class="sheet-kicker">Kata Pelanggan</p>
+            <h2 class="sheet-title">Sudah menemani ratusan momen spesial.</h2>
+          </div>
+          <span style="font-size:12px;color:#6A625B;">Arahkan kursor untuk berhenti sejenak</span>
+        </div>
+
+        <div class="reviews-marquee-wrap">
+          <div id="reviews-marquee-track" class="reviews-track"></div>
+        </div>
+      </section>
+
+      <!-- 5. LOKASI TOKO & FAQ SINGKAT -->
+      <section id="sheet-lokasi" class="sheet-section" style="border-top:1px solid #E6DDD0;padding-top:44px;">
+        <div class="sheet-section-head">
+          <div>
+            <p class="sheet-kicker">Lokasi &amp; Pertanyaan Umum</p>
+            <h2 class="sheet-title">Ambil langsung di toko atau kirim kurir.</h2>
+          </div>
+        </div>
+
+        <div class="visit-faq-grid">
+          <div class="visit-card">
+            <iframe
+              class="visit-map"
+              title="Peta Lokasi Toko Azzatul Bouquet"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://maps.google.com/maps?q=-6.4478556,106.9606066&z=17&output=embed">
+            </iframe>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <strong style="font-size:15px;color:#1F1C1B;">Lokasi Toko Azzatul Bouquet</strong>
+              <span style="font-size:12.5px;color:#6A625B;">6°26'52.3"S 106°57'38.2"E · Buka Setiap Hari 08.00 – 19.00 WIB</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <a href="https://www.google.com/maps/place/6%C2%B026'52.3%22S+106%C2%B057'38.2%22E/@-6.4478556,106.9580317,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-6.4478556!4d106.9606066"
+                 target="_blank" rel="noopener noreferrer" class="about-cta-dark" style="padding:10px 18px;font-size:12.5px;">
+                <span>Buka Google Maps</span><i class="ph ph-arrow-up-right"></i>
+              </a>
+              <a href="https://wa.me/62881024911087" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:999px;border:1px solid #D5C9BA;color:#1F1C1B;font-size:12.5px;font-weight:600;text-decoration:none;">
+                <i class="ph ph-whatsapp-logo" style="color:#2E5940;font-size:15px;"></i>
+                <span>+62 881-0249-11087</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="faq-list">
+            <details class="faq-item" open>
+              <summary>
+                <span>Berapa lama pengerjaan buket custom?</span>
+                <i class="ph ph-caret-down" style="color:#B85D38;"></i>
+              </summary>
+              <p>Pesanan diproses sesuai urutan antrean (FIFO). Untuk buket snack/foto/Rangkaian Bunga standar biasanya selesai dalam 2–4 jam atau bisa dijadwalkan untuk tanggal target yang kamu pilih.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>Apakah uang pada Money Bouquet aman tanpa lem?</span>
+                <i class="ph ph-caret-down" style="color:#B85D38;"></i>
+              </summary>
+              <p>Ya! Setiap lembar uang dimasukkan ke plastik pelindung khusus tanpa lem dan tanpa steples langsung ke uangnya, jadi saat dibongkar uang tetap mulus 100%.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>Bagaimana metode pembayarannya?</span>
+                <i class="ph ph-caret-down" style="color:#B85D38;"></i>
+              </summary>
+              <p>Semua pembayaran 100% menggunakan <strong>QRIS Nasional Otomatis</strong> (mendukung GoPay, Dana, OVO, ShopeePay, dan seluruh Mobile Banking) sehingga praktis, cepat, dan terverifikasi instan.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>Apakah bisa pilih isi campuran makanan &amp; non-makanan?</span>
+                <i class="ph ph-caret-down" style="color:#B85D38;"></i>
+              </summary>
+              <p>Tentu! Di menu <strong>Mix Custom</strong> kamu bebas memadukan snack populer, Rangkaian Bunga satin/silk, boneka wisuda, foto polaroid, parfum mini, hingga lilin aromaterapi dalam satu buket.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <footer class="about-footer">
+        <div class="sheet-footer-grid">
+          <div class="sheet-footer-col">
+            <span style="font-family:'Hedvig Letters Serif',Georgia,serif;font-size:26px;letter-spacing:-0.02em;color:#1F1C1B;">
+              Azzatul Bouquet<span style="color:#B85D38;">.</span>
+            </span>
+            <p>Toko buket custom untuk segala momen—snack populer, money bouquet aman tanpa lem, foto polaroid, Rangkaian Bunga satin &amp; silk, hingga mix custom.</p>
+            <div class="sheet-footer-badges">
+              <span>QRIS Nasional</span>
+              <span>Terverifikasi Otomatis</span>
+            </div>
+          </div>
+
+          <div class="sheet-footer-col">
+            <span class="sheet-footer-heading">Menu</span>
+            <a href="#sheet-tentang">Tentang Toko</a>
+            <a href="#sheet-katalog">Jenis Buket</a>
+            <a href="customize.html">Template Populer</a>
+            <a href="customize.html?step=2">Mulai Rangkai Custom</a>
+            <a href="admin.html">Kelola Toko (Admin)</a>
+          </div>
+
+          <div class="sheet-footer-col">
+            <span class="sheet-footer-heading">Kontak &amp; Sosial</span>
+            <a href="https://wa.me/62881024911087" target="_blank" rel="noopener noreferrer">
+              <i class="ph ph-whatsapp-logo" style="color:#2E5940;font-size:16px;"></i>
+              <span>+62 881-0249-11087</span>
+            </a>
+            <a href="mailto:halo@azzatulbouquet.id">
+              <i class="ph ph-envelope-simple" style="color:#B85D38;font-size:16px;"></i>
+              <span>halo@azzatulbouquet.id</span>
+            </a>
+            <a href="https://instagram.com/azzatulbouquet" target="_blank" rel="noopener noreferrer">
+              <i class="ph ph-instagram-logo" style="color:#B85D38;font-size:16px;"></i>
+              <span>@azzatulbouquet</span>
+            </a>
+            <p>
+              <i class="ph ph-clock" style="color:#6A625B;font-size:16px;"></i>
+              <span>Setiap Hari · 08.00 – 19.00 WIB</span>
+            </p>
+          </div>
+
+          <div class="sheet-footer-col">
+            <span class="sheet-footer-heading">Lokasi Toko</span>
+            <p>Klapa Nunggal, Cileungsi — Bogor (6°26'52.3"S 106°57'38.2"E)</p>
+            <p>Tersedia Ambil di Tempat (Gratis) &amp; Pengiriman Kurir Instan.</p>
+            <a href="https://www.google.com/maps/place/6%C2%B026'52.3%22S+106%C2%B057'38.2%22E/@-6.4478556,106.9580317,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-6.4478556!4d106.9606066"
+               target="_blank" rel="noopener noreferrer" style="color:#B85D38;font-weight:600;margin-top:4px;">
+              <span>Buka di Google Maps ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="sheet-footer-bottom">
+          <span>© 2026 Azzatul Bouquet — Toko Buket Custom. Semua hak dilindungi.</span>
+          <a href="admin.html" style="color:inherit;text-decoration:none;font-weight:500;">Portal Admin</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="data.js?v=23"></script>
+  <script src="core.js?v=23"></script>
+  <script>
+    const FILMSTRIP_PHOTOS = [
+      { src: 'assets/snack-bouquet.jpg', label: 'Buket Snack Populer' },
+      { src: 'assets/money-bouquet.jpg', label: 'Money Bouquet Aman' },
+      { src: 'assets/polaroid-bouquet.jpg', label: 'Buket Foto Polaroid' },
+      { src: 'assets/artificial-bouquet.jpg', label: 'Rangkaian Bunga Satin' },
+      { src: 'assets/mix-bouquet.jpg', label: 'Buket Mix Custom' },
+      { src: 'assets/hero-polaroid.jpg', label: 'Polaroid & Lampu LED' },
+      { src: 'assets/hero-snack.jpg', label: 'Buket Cokelat & Snack' },
+    ];
+
+    function initHero() {
+      const cardsHtml = FILMSTRIP_PHOTOS.map((p) =>
+        `<div class="bg-film-card" aria-hidden="true"><img src="${p.src}" alt="" decoding="async" onerror="if(window.handleImgError)handleImgError(this)" /><span class="bg-film-tag">${escapeHtml(p.label)}</span></div>`
+      ).join('');
+      document.getElementById('bg-stage').innerHTML = `<div class="bg-filmstrip" aria-hidden="true">${cardsHtml}${cardsHtml}</div>`;
+    }
+
+    let aboutOpen = false;
+    let gestureLockUntil = 0;
+
+    function openAboutCurtain() {
+      const el = document.getElementById('about-curtain');
+      if (!el || aboutOpen) return;
+      aboutOpen = true;
+      gestureLockUntil = Date.now() + 500;
+      el.removeAttribute('inert');
+      el.inert = false;
+      el.classList.add('is-open');
+      el.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      const triggerBtn = document.querySelector('.about-trigger-btn');
+      if (triggerBtn) triggerBtn.setAttribute('aria-expanded', 'true');
+      const closeBtn = el.querySelector('.about-close-btn');
+      if (closeBtn) {
+        requestAnimationFrame(() => closeBtn.focus({ preventScroll: true }));
+      }
+    }
+
+    function closeAboutCurtain() {
+      const el = document.getElementById('about-curtain');
+      if (!el || !aboutOpen) return;
+      aboutOpen = false;
+      gestureLockUntil = Date.now() + 500;
+      const triggerBtn = document.querySelector('.about-trigger-btn');
+      if (triggerBtn) {
+        triggerBtn.setAttribute('aria-expanded', 'false');
+        triggerBtn.focus({ preventScroll: true });
+      }
+      el.classList.remove('is-open');
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('inert', '');
+      el.inert = true;
+      document.body.style.overflow = '';
+    }
+
+    window.openAbout = openAboutCurtain;
+    window.closeAbout = closeAboutCurtain;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && aboutOpen) {
+        e.preventDefault();
+        closeAboutCurtain();
+      }
+    });
+
+    // Wheel gesture (desktop): scroll down on banner opens About from bottom (never closes on upward scroll)
+    window.addEventListener(
+      'wheel',
+      (e) => {
+        if (Date.now() < gestureLockUntil) return;
+        if (!aboutOpen && e.deltaY > 28) {
+          const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 6;
+          if (window.innerWidth > 900 || atBottom) openAboutCurtain();
+        }
+      },
+      { passive: true }
+    );
+
+    // Touch swipe gesture (mobile/tablet): swipe up from bottom opens About; clean downward drag >95px from top closes it
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchStartedAtTop = false;
+    let touchScrolledContent = false;
+
+    window.addEventListener(
+      'touchstart',
+      (e) => {
+        const t = e.touches[0];
+        touchStartY = t ? t.clientY : 0;
+        touchStartX = t ? t.clientX : 0;
+        const curtain = document.getElementById('about-curtain');
+        touchStartedAtTop = Boolean(aboutOpen && curtain && curtain.scrollTop <= 0);
+        touchScrolledContent = false;
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'touchmove',
+      () => {
+        if (!aboutOpen) return;
+        const curtain = document.getElementById('about-curtain');
+        if (curtain && curtain.scrollTop > 0) {
+          touchScrolledContent = true;
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'touchend',
+      (e) => {
+        if (Date.now() < gestureLockUntil) return;
+        const t = e.changedTouches[0];
+        const endY = t ? t.clientY : 0;
+        const endX = t ? t.clientX : 0;
+        const deltaY = touchStartY - endY;
+        const deltaX = Math.abs(touchStartX - endX);
+        const curtain = document.getElementById('about-curtain');
+
+        if (!aboutOpen && deltaY > 55 && deltaY > deltaX) {
+          const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 16;
+          if (atBottom) openAboutCurtain();
+        } else if (
+          aboutOpen &&
+          touchStartedAtTop &&
+          !touchScrolledContent &&
+          curtain &&
+          curtain.scrollTop <= 0 &&
+          endY - touchStartY > 95 &&
+          endY - touchStartY > deltaX * 1.5
+        ) {
+          closeAboutCurtain();
+        }
+      },
+      { passive: true }
+    );
+
+    const CUSTOMER_REVIEWS = [
+      {
+        quote: 'Pesan Mix Custom isi SilverQueen, Rangkaian Bunga satin, sama boneka wisuda buat sahabat. Wrapping-nya tebal banget dan warna dusty rose-nya persis ekspektasi!',
+        name: 'Nadia Putri',
+        tag: 'Mix Custom · Wisuda',
+      },
+      {
+        quote: 'Money bouquet-nya rapi parah, tiap lembar uang masuk plastik bening tanpa kena lem sama sekali. Proses pesannya gampang banget langsung bayar QRIS.',
+        name: 'Raka Pratama',
+        tag: 'Money Bouquet · Ultah',
+      },
+      {
+        quote: 'Buket foto polaroid pakai lampu LED warm bikin hadiah anniversary makin berkesan. Kartu ucapan A6-nya juga dicetak bagus banget padahal gratis.',
+        name: 'Alya Rahma',
+        tag: 'Buket Foto · Anniversary',
+      },
+      {
+        quote: 'Suka banget bisa pilih snack sendiri satu per satu (Tango, Beng-Beng, Pocky, KitKat) dan langsung kelihatan estimasi harganya sebelum checkout.',
+        name: 'Dimas Saputra',
+        tag: 'Snack Populer · Sidang',
+      },
+      {
+        quote: 'Rangkaian Bunga pita satin di Azzatul Bouquet awet banget, sudah berbulan-bulan dipajang di kamar tetap rapi dan nggak berdebu. Bakal repeat order lagi!',
+        name: 'Salsa Oktaviani',
+        tag: 'Rangkaian Bunga · Kado',
+      },
+      {
+        quote: 'Ambil langsung di lokasi toko cepat dan ramah banget. Pesan pagi buat acara sore langsung beres rapi sesuai antrean, pita & kertasnya premium.',
+        name: 'Fajar Hidayat',
+        tag: 'Ambil di Tempat · Wisuda',
+      },
+      {
+        quote: 'Bisa custom isi non-makanan kayak parfum mini, cermin estetik, sama boneka kecil dalam satu buket. Kado paling unik yang pernah gua kasih!',
+        name: 'Tiara Kusuma',
+        tag: 'Mix Custom · Sahabat',
+      },
+      {
+        quote: 'Bayar pakai QRIS otomatis langsung terverifikasi detik itu juga tanpa perlu kirim bukti manual, dan langsung dapat nomor Antrean FIFO. Anti ribet!',
+        name: 'Bagas Mahendra',
+        tag: 'Money Bouquet · QRIS Otomatis',
+      },
+    ];
+
+    function initReviewsMarquee() {
+      const track = document.getElementById('reviews-marquee-track');
+      if (!track) return;
+      const cardsHtml = CUSTOMER_REVIEWS.map(
+        (r) => `
+        <article class="review-card">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">“${escapeHtml(r.quote)}”</p>
+          </div>
+          <div class="review-author">
+            <strong>${escapeHtml(r.name)}</strong>
+            <span>${escapeHtml(r.tag)}</span>
+          </div>
+        </article>`
+      ).join('');
+      // Duplicate for seamless infinite loop
+      track.innerHTML = cardsHtml + cardsHtml;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initStore();
+      initHero();
+      initReviewsMarquee();
+    });
+  </script>
+</body>
+</html>

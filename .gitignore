@@ -1,0 +1,19 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# OS & Editor Junk
+.DS_Store
+Thumbs.db
+
+# Temporary / Test Artifacts
+_tmp_*
+
+# Large media & old draft docs
+*.mp4
+LKPD_UI_UX_Alfien_*.docx

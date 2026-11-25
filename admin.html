@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Admin — Azzatul Bouquet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css?v=23" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
+            display: ['Hedvig Letters Serif', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Sleek thin scrollbar for fixed sidebar & workspace */
+    .admin-scroll::-webkit-scrollbar { width: 6px; }
+    .admin-scroll::-webkit-scrollbar-track { background: transparent; }
+    .admin-scroll::-webkit-scrollbar-thumb { background: rgba(213, 201, 186, 0.35); border-radius: 999px; }
+    .admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(184, 93, 56, 0.6); }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#B85D38]/15 bg-[#FAF6EE] text-[#1F1C1B]">
+
+  <!-- LOGIN GATE -->
+  <div id="admin-login-gate" class="min-h-screen flex items-center justify-center p-5 sm:p-8 no-print">
+    <div class="bg-white border border-[#E6DDD0] rounded-3xl max-w-md w-full p-7 sm:p-9 space-y-6 shadow-sm">
+      <div class="flex items-start justify-between gap-4 border-b border-[#E6DDD0] pb-5">
+        <div class="space-y-1">
+          <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-[#B85D38] font-semibold">Portal Operasional</p>
+          <h1 class="font-display text-3xl font-normal tracking-tight text-[#1F1C1B]">
+            Azzatul Bouquet<span class="text-[#E0A33A]">.</span>
+          </h1>
+          <p class="text-xs text-[#6A625B]">Kelola antrean pesanan, bukti QRIS, stok bahan &amp; keuangan.</p>
+        </div>
+        <a href="/" class="px-3.5 py-1.5 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] text-[11px] font-semibold text-[#1F1C1B] inline-flex items-center gap-1 shrink-0 transition">
+          <i class="ph ph-arrow-left"></i><span>Toko</span>
+        </a>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1.5">Username Staf / Pemilik</label>
+          <input id="admin-login-user" type="text" required placeholder="owner atau crafter"
+            class="w-full px-4 py-3 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B] transition" />
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1.5">Kata Sandi</label>
+          <input id="admin-login-pass" type="password" required placeholder="Masukkan password"
+            class="w-full px-4 py-3 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B] transition" />
+        </div>
+        <p id="admin-login-err" class="hidden text-xs font-medium text-[#B85D38] bg-[#FBF2E6] border border-[#E6DDD0] px-3.5 py-2.5 rounded-xl"></p>
+        <button type="submit" class="w-full py-3 px-5 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-xs font-semibold cursor-pointer inline-flex items-center justify-center gap-2 transition">
+          <span>Masuk ke Portal Admin</span>
+          <i class="ph ph-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="pt-5 border-t border-[#E6DDD0] space-y-2.5">
+        <p class="font-mono text-[10px] uppercase tracking-wider text-[#6A625B]">Akses Cepat (1-Klik):</p>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" onclick="quickDemoLogin('owner')" class="p-3 rounded-2xl bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#B85D38] text-left cursor-pointer transition">
+            <span class="block text-xs font-semibold text-[#1F1C1B]">Owner Azzatul Bouquet</span>
+            <span class="block font-mono text-[10px] text-[#B85D38] mt-0.5">Akses Penuh (5 Tab)</span>
+          </button>
+          <button type="button" onclick="quickDemoLogin('crafter')" class="p-3 rounded-2xl bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] text-left cursor-pointer transition">
+            <span class="block text-xs font-semibold text-[#1F1C1B]">Perangkai (Rina)</span>
+            <span class="block font-mono text-[10px] text-[#6A625B] mt-0.5">Produksi &amp; Stok (3 Tab)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTHENTICATED ADMIN DASHBOARD SHELL -->
+  <div id="admin-app-shell" class="hidden min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Mobile Top Bar (Sticky on Mobile/Tablet) -->
+    <header class="lg:hidden sticky top-0 z-30 bg-[#14110F] text-[#FAF6EE] px-5 h-15 py-3 flex items-center justify-between border-b border-[#2B2521] no-print">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleAdminMobileNav()" aria-label="Menu Admin"
+          class="w-9 h-9 rounded-full bg-[#241F1C] border border-[#362F2A] inline-flex items-center justify-center text-[#FAF6EE] cursor-pointer">
+          <i class="ph ph-list text-lg"></i>
+        </button>
+        <span class="font-display text-xl tracking-tight">Azzatul Bouquet<span class="text-[#E0A33A]">.</span></span>
+      </div>
+      <a href="/" class="px-3 py-1 rounded-full bg-[#241F1C] border border-[#362F2A] text-[11px] font-medium text-[#FAF6EE]">
+        Toko ↗
+      </a>
+    </header>
+
+    <!-- Mobile Backdrop -->
+    <div id="admin-mobile-backdrop" onclick="toggleAdminMobileNav(false)" class="hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-xs lg:hidden no-print"></div>
+
+    <!-- FIXED / STICKY SIDEBAR (Never scrolls away on Desktop!) -->
+    <aside id="admin-sidebar"
+      class="fixed inset-y-0 left-0 z-40 w-72 -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen bg-[#14110F] text-[#FAF6EE] shrink-0 flex flex-col justify-between p-5 border-r border-[#2B2521] transition-transform duration-300 ease-out overflow-y-auto admin-scroll no-print">
+      <div class="space-y-6">
+        <!-- Brand Header -->
+        <div class="flex items-center justify-between gap-2 pb-5 border-b border-[#2B2521]">
+          <div>
+            <p class="font-display text-2xl font-normal tracking-tight leading-none text-[#FAF6EE]">
+              Azzatul Bouquet<span class="text-[#E0A33A]">.</span>
+            </p>
+            <p class="font-mono text-[9px] uppercase tracking-[0.18em] text-[#E0A33A] mt-1.5">Portal Admin Toko</p>
+          </div>
+          <a href="/" class="px-3 py-1 text-[11px] font-medium text-[#FAF6EE]/80 hover:text-white border border-[#362F2A] hover:border-[#E0A33A] rounded-full transition">
+            Toko ↗
+          </a>
+        </div>
+
+        <!-- Logged-in Staff Pill -->
+        <div id="admin-user-pill" class="p-3.5 bg-[#1F1B18] border border-[#2E2824] rounded-2xl text-xs"></div>
+
+        <!-- Sidebar Navigation -->
+        <div class="space-y-1.5">
+          <p class="px-3 font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#8E857C]">Menu Operasional</p>
+          <nav id="admin-sidebar-nav" class="space-y-1 text-xs"></nav>
+        </div>
+      </div>
+
+      <!-- Bottom Utility Actions -->
+      <div class="pt-5 mt-6 border-t border-[#2B2521] space-y-2 text-xs">
+        <button id="admin-reset-demo-btn" type="button" onclick="confirmResetDemoData()" class="w-full px-3.5 py-2.5 bg-[#1F1B18] hover:bg-[#2A2420] border border-[#2E2824] rounded-2xl text-left flex items-center gap-2.5 text-[#D5C9BA] cursor-pointer transition">
+          <i class="ph ph-arrows-clockwise text-sm"></i><span>Reset Data Demo</span>
+        </button>
+        <button type="button" onclick="handleAdminLogout()" class="w-full px-3.5 py-2.5 bg-[#B85D38]/90 hover:bg-[#B85D38] rounded-2xl text-left flex items-center gap-2.5 font-semibold text-white cursor-pointer transition">
+          <i class="ph ph-sign-out text-sm"></i><span>Keluar Admin</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Scrollable Admin Workspace -->
+    <main class="flex-1 min-w-0 p-5 sm:p-8 lg:p-10 overflow-x-hidden no-print">
+      <div class="max-w-7xl mx-auto space-y-6">
+        <div id="admin-tab-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: Penawaran & Penyesuaian Request WA -->
+  <div id="offer-modal" class="fixed inset-0 z-50 hidden bg-[#14110F]/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white border border-[#E6DDD0] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-4">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-wider text-[#B85D38] font-semibold">Sesuaikan Request Sebelum Rangkai</p>
+          <h3 class="font-display text-2xl text-[#1F1C1B]">Penawaran Alternatif ke Pelanggan</h3>
+        </div>
+        <button type="button" onclick="closeOrderOfferModal()" class="w-9 h-9 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] inline-flex items-center justify-center cursor-pointer transition">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <form onsubmit="saveOrderOffer(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="offer-order-id" />
+        <div class="p-3.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl">
+          <p class="font-semibold text-[#1F1C1B]" id="offer-customer-label">-</p>
+          <p class="text-[11px] text-[#6A625B] mt-0.5" id="offer-request-label">-</p>
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Status Penawaran</label>
+          <select id="offer-status-select" class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]">
+            <option value="Menunggu Penawaran">Menunggu Penawaran</option>
+            <option value="Ditawarkan Alternatif via WA">Ditawarkan Alternatif via WA</option>
+            <option value="Disetujui Pelanggan">Disetujui Pelanggan</option>
+            <option value="Sesuai Katalog">Sesuai Katalog</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Penyesuaian Harga Total (Rp)</label>
+          <input id="offer-price-input" type="number" min="0" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Catatan Penawaran (Warna / Wrapping / Pengganti)</label>
+          <textarea id="offer-note-input" rows="3" required placeholder="Contoh: Warna pita burgundy habis diganti maroon matte atau dusty blush, harga tetap..."
+            class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-end pt-2">
+          <button type="button" onclick="sendOfferToWa()" class="btn-outline px-4 py-2.5 font-semibold text-[#2E5940] border-[#2E5940] cursor-pointer inline-flex items-center gap-1.5">
+            <i class="ph ph-whatsapp-logo"></i><span>Kirim Teks Penawaran WA</span>
+          </button>
+          <button type="submit" class="btn-accent px-5 py-2.5 font-semibold cursor-pointer">Simpan Penawaran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Restock / Adjust Bahan -->
+  <div id="stock-action-modal" class="fixed inset-0 z-50 hidden bg-[#14110F]/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white border border-[#E6DDD0] rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-4">
+        <h3 id="stock-modal-title" class="font-display text-2xl text-[#1F1C1B]">Update Stok Bahan</h3>
+        <button type="button" onclick="closeStockActionModal()" class="w-9 h-9 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] inline-flex items-center justify-center cursor-pointer transition">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <form onsubmit="submitStockAction(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="stock-modal-inv-id" />
+        <p id="stock-modal-item-name" class="font-semibold text-[#B85D38]">-</p>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Mode Pergerakan Stok</label>
+          <select id="stock-modal-mode" class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]">
+            <option value="in">Stok Masuk (+)</option>
+            <option value="out">Koreksi Stok Keluar (-)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Jumlah Penambahan / Pengurangan</label>
+          <input id="stock-modal-qty" type="number" min="1" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Catatan Pergerakan Stok</label>
+          <input id="stock-modal-note" type="text" required placeholder="Contoh: Belanja mingguan bahan buket"
+            class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeStockActionModal()" class="btn-outline px-4 py-2.5 cursor-pointer">Batal</button>
+          <button type="submit" class="btn-primary px-5 py-2.5 font-semibold cursor-pointer">Simpan Stok</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah / Edit Produk Katalog -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-[#14110F]/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white border border-[#E6DDD0] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-4">
+        <h3 id="product-modal-title" class="font-display text-2xl text-[#1F1C1B]">Kelola Produk Katalog</h3>
+        <button type="button" onclick="closeProductModal()" class="w-9 h-9 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] inline-flex items-center justify-center cursor-pointer transition">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <form onsubmit="saveAdminProduct(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="pm-id" />
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Nama Buket *</label>
+          <input id="pm-name" type="text" required class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">Kategori</label>
+            <select id="pm-cat" class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]">
+              <option value="Buket Snack">Buket Snack</option>
+              <option value="Buket Uang">Buket Uang</option>
+              <option value="Buket Foto">Buket Foto</option>
+              <option value="Rangkaian Bunga">Rangkaian Bunga</option>
+              <option value="Mix Custom">Mix Custom</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">Stok Siap</label>
+            <input id="pm-stock" type="number" min="0" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">Harga Jual (Rp)</label>
+            <input id="pm-price" type="number" min="0" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+          </div>
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">HPP / Modal (Rp)</label>
+            <input id="pm-hpp" type="number" min="0" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Path / URL Gambar Produk</label>
+          <input id="pm-img" type="text" required placeholder="assets/snack-bouquet.jpg" class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Deskripsi Singkat</label>
+          <textarea id="pm-desc" rows="2" required class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeProductModal()" class="btn-outline px-4 py-2.5 cursor-pointer">Batal</button>
+          <button type="submit" class="btn-accent px-5 py-2.5 font-semibold cursor-pointer">Simpan Produk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah / Edit Bahan Custom Buket -->
+  <div id="custom-item-modal" class="fixed inset-0 z-50 hidden bg-[#14110F]/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white border border-[#E6DDD0] rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 sm:p-7 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-4">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-wider text-[#B85D38] font-semibold">Isian Customizer Pembeli</p>
+          <h3 id="custom-item-modal-title" class="font-display text-2xl text-[#1F1C1B]">Tambah Bahan Custom</h3>
+        </div>
+        <button type="button" onclick="closeCustomItemModal()" class="w-9 h-9 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] inline-flex items-center justify-center cursor-pointer transition">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <form onsubmit="saveAdminCustomItem(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="cim-id" />
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Nama Bahan / Isian *</label>
+          <input id="cim-name" type="text" required placeholder="Contoh: Ferrero Rocher 3pcs / Boneka Stitch"
+            class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Kategori *</label>
+          <select id="cim-cat" class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]">
+            <option value="Snack">Snack (Makanan &amp; Minuman)</option>
+            <option value="Bunga & Boneka">Bunga &amp; Boneka</option>
+            <option value="Foto & Uang">Foto &amp; Uang</option>
+            <option value="Kado & Aksesoris">Kado &amp; Aksesoris</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-[#1F1C1B] mb-1">Varian / Keterangan Singkat *</label>
+          <input id="cim-variant" type="text" required placeholder="Contoh: Cokelat Hazelnut / Tinggi 15cm"
+            class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">Harga Jual (Rp) *</label>
+            <input id="cim-price" type="number" min="500" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+          </div>
+          <div>
+            <label class="block font-semibold text-[#1F1C1B] mb-1">HPP / Modal (Rp) *</label>
+            <input id="cim-hpp" type="number" min="0" required class="w-full px-3.5 py-2.5 font-mono bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeCustomItemModal()" class="btn-outline px-4 py-2.5 cursor-pointer">Batal</button>
+          <button type="submit" class="btn-accent px-5 py-2.5 font-semibold cursor-pointer">Simpan Bahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Lightbox Foto Referensi / Bukti Bayar -->
+  <div id="admin-lightbox" class="fixed inset-0 z-[60] hidden bg-[#14110F]/85 backdrop-blur-sm flex items-center justify-center p-4 no-print" onclick="closeAdminLightbox()">
+    <img id="admin-lightbox-img" src="" alt="Pratinjau foto" onclick="event.stopPropagation()" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl border border-white/20" />
+  </div>
+
+  <script src="data.js?v=23"></script>
+  <script src="core.js?v=23"></script>
+  <script src="admin.js?v=23"></script>
+</body>
+</html>

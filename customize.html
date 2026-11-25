@@ -1,0 +1,1328 @@
+﻿<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rangkai Buket Custom — Azzatul Bouquet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="styles.css?v=23" />
+  <style>
+    /* Fase 6 residual: on mobile lift toasts above the sticky bottom CTA bar */
+    @media (max-width: 1023.98px) { #toast-container { bottom: 6.5rem; } }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
+            display: ['Hedvig Letters Serif', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="antialiased selection:bg-[#B85D38]/15 bg-[#FAF6EE] text-[#1F1C1B]">
+
+  <div id="site-navbar"></div>
+
+  <main class="max-w-6xl mx-auto px-5 sm:px-8 pt-6 sm:pt-10 pb-24 lg:pb-0 space-y-7">
+    <!-- Compact Editorial Top Header + Segmented 4-Step Pill Bar -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-[#E6DDD0]">
+      <div class="space-y-1">
+        <p id="wizard-step-kicker" class="font-mono text-[11px] uppercase tracking-[0.14em] text-[#B85D38]">Langkah 1 dari 4</p>
+        <h1 id="wizard-step-heading" class="font-display text-3xl sm:text-4xl font-normal text-[#1F1C1B] leading-tight">
+          Pilih Template atau Rangkai Sendiri
+        </h1>
+      </div>
+
+      <!-- Segmented Pill Stepper -->
+      <div id="wizard-step-nav" class="inline-flex flex-wrap gap-1.5 p-1.5 rounded-full bg-[#F3ECE0] border border-[#E6DDD0] text-xs"></div>
+    </div>
+
+    <!-- 2-Column Editorial Configurator Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT: Sticky Editorial Live Preview & Order Summary -->
+      <aside class="lg:col-span-5 lg:sticky lg:top-24">
+        <div class="bg-white border border-[#E6DDD0] rounded-3xl p-4 sm:p-5 shadow-xs space-y-4">
+          <!-- Photo Stage with Floating Type & Color Pills -->
+          <div id="studio-preview-stage" class="relative rounded-2xl overflow-hidden bg-[#F3ECE0] aspect-[4/4.1] flex items-center justify-center border border-[#E6DDD0]">
+            <div id="studio-preview-canvas" class="w-full h-full"></div>
+            <div id="preview-overlay-badges" class="absolute top-3 inset-x-3 flex items-center justify-between gap-2 pointer-events-none"></div>
+            <div class="absolute bottom-3 inset-x-3 flex justify-center">
+              <div class="inline-flex gap-1 p-1 rounded-full bg-[#FAF6EE]/90 backdrop-blur-md border border-[#E6DDD0] text-[10px] font-semibold">
+                <button type="button" id="preview-tab-photo" data-cfg-action="setPreviewMode" data-cfg-value="photo" class="px-3 py-1 rounded-full cursor-pointer transition">Foto Referensi</button>
+                <button type="button" id="preview-tab-live" data-cfg-action="setPreviewMode" data-cfg-value="live" class="px-3 py-1 rounded-full cursor-pointer transition">Simulasi Warna Live</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clean Live Spec & Selected Items/Addons Tags -->
+          <div class="px-1 space-y-2">
+            <div>
+              <p id="studio-live-title" class="font-display text-xl text-[#1F1C1B] leading-snug"></p>
+              <p id="studio-live-subtitle" class="text-xs text-[#6A625B] leading-relaxed mt-0.5"></p>
+            </div>
+            <div id="studio-selected-list" class="hidden pt-1 space-y-1.5"></div>
+          </div>
+
+          <!-- Price & Collapsible Breakdown -->
+          <div class="pt-3.5 border-t border-[#E6DDD0] space-y-3 px-1">
+            <div class="flex items-baseline justify-between gap-3">
+              <div>
+                <p class="text-[11px] uppercase tracking-wider font-mono text-[#6A625B]">Estimasi Total</p>
+                <p id="studio-price-note" class="text-[11px] text-[#2E5940] mt-0.5"></p>
+              </div>
+              <p id="studio-total-price" class="font-mono text-2xl font-bold text-[#1F1C1B]">Rp 0</p>
+            </div>
+
+            <button type="button" onclick="togglePriceBreakdown()"
+              class="w-full flex items-center justify-between text-[11px] text-[#6A625B] hover:text-[#1F1C1B] py-1 cursor-pointer transition">
+              <span>Lihat rincian harga</span>
+              <i id="breakdown-chevron" class="ph ph-caret-down transition-transform duration-200"></i>
+            </button>
+
+            <div id="price-breakdown-drawer" class="hidden pt-2.5 border-t border-dashed border-[#E6DDD0] space-y-1.5 text-[11px] text-[#6A625B]"></div>
+
+            <!-- Primary Desktop Action CTA inside Sticky Card -->
+            <button type="button" id="sidebar-next-btn" onclick="handleMobileStickyCta()"
+              class="hidden lg:inline-flex w-full py-3.5 px-5 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-xs font-semibold items-center justify-center gap-2 cursor-pointer transition">
+              <span>Lanjut ke Langkah Berikutnya</span>
+              <i class="ph ph-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: Active Step Panel -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- ==================== STEP 1: Mulai & Template ==================== -->
+        <section id="custom-step-1" class="step-pane-forward space-y-6">
+          <!-- 2 Clean Start Mode Cards -->
+          <div id="quick-start-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <button type="button" onclick="startFreshCustom()"
+              class="p-5 rounded-3xl bg-[#1F1C1B] text-[#FAF6EE] text-left hover:bg-[#2F2A28] cursor-pointer flex items-center justify-between gap-4 group transition">
+              <div class="space-y-1">
+                <p class="font-mono text-[10px] uppercase tracking-wider text-[#E0A33A]">Custom Bebas</p>
+                <p class="font-display text-2xl leading-tight">Rangkai dari Nol</p>
+                <p class="text-xs text-[#FAF6EE]/75">Pilih sendiri snack, pecahan uang, foto, atau Rangkaian Bunga.</p>
+              </div>
+              <span class="w-10 h-10 rounded-full bg-[#FAF6EE]/15 inline-flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform">
+                <i class="ph ph-arrow-right text-lg"></i>
+              </span>
+            </button>
+
+            <button type="button" onclick="openReferenceMode()"
+              class="p-5 rounded-3xl bg-white border border-[#E6DDD0] hover:border-[#1F1C1B] text-left cursor-pointer flex items-center justify-between gap-4 group transition">
+              <div class="space-y-1">
+                <p class="font-mono text-[10px] uppercase tracking-wider text-[#B85D38]">Punya Contoh?</p>
+                <p class="font-display text-2xl text-[#1F1C1B] leading-tight">Upload Referensi</p>
+                <p class="text-xs text-[#6A625B]">Kirim foto inspirasi dari IG / Pinterest kamu di sini.</p>
+              </div>
+              <span class="w-10 h-10 rounded-full bg-[#F3ECE0] text-[#1F1C1B] inline-flex items-center justify-center shrink-0">
+                <i class="ph ph-image-square text-lg"></i>
+              </span>
+            </button>
+          </div>
+
+          <!-- Reference Upload Drawer -->
+          <div id="reference-upload-panel" class="hidden bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-[#E6DDD0] pb-3">
+              <div>
+                <h2 class="font-display text-2xl text-[#1F1C1B]">Upload Foto Referensi</h2>
+                <p class="text-xs text-[#6A625B]">Unggah gambar dari galeri HP atau pilih contoh di bawah.</p>
+              </div>
+              <button type="button" onclick="closeReferenceMode()" class="px-3.5 py-1.5 rounded-full bg-[#F3ECE0] hover:bg-[#E6DDD0] text-xs font-semibold text-[#1F1C1B] cursor-pointer inline-flex items-center gap-1.5 transition">
+                <i class="ph ph-arrow-left"></i><span>Kembali</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+              <div class="sm:col-span-5">
+                <label class="block border-2 border-dashed border-[#D5C9BA] bg-[#FAF6EE] hover:border-[#B85D38] rounded-2xl p-5 text-center cursor-pointer transition">
+                  <i class="ph ph-cloud-arrow-up text-2xl text-[#B85D38] block mb-1"></i>
+                  <span class="block text-xs font-semibold text-[#1F1C1B]">Pilih Gambar</span>
+                  <span class="block text-[10px] text-[#6A625B] mt-0.5">JPG / PNG otomatis dikompresi</span>
+                  <input type="file" accept="image/*" onchange="handleReferenceUpload(event)" class="hidden" />
+                </label>
+              </div>
+              <div class="sm:col-span-7 space-y-2">
+                <p class="text-[11px] font-medium text-[#6A625B]">Atau pilih contoh cepat:</p>
+                <div id="sample-reference-grid" class="grid grid-cols-3 gap-2"></div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#1F1C1B] mb-1">Catatan request untuk perangkai</label>
+              <textarea id="ref-note-textarea" rows="2" oninput="onReferenceNoteInput(this.value)"
+                placeholder="Contoh: Tolong samakan komposisinya, pita ganti Champagne Gold..."
+                class="w-full px-3.5 py-2.5 text-xs bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <button type="button" onclick="closeReferenceMode()"
+                class="px-4 py-2.5 rounded-full bg-white border border-[#D5C9BA] hover:border-[#1F1C1B] text-[#1F1C1B] text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5 transition">
+                <i class="ph ph-arrow-left"></i><span>Kembali ke Rangkai dari Nol</span>
+              </button>
+              <button type="button" onclick="goToWizardStep(2)"
+                class="px-5 py-2.5 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-xs font-semibold cursor-pointer inline-flex items-center gap-2 transition">
+                <span>Lanjut Atur Isi Buket</span>
+                <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Template Gallery -->
+          <div id="template-gallery-section" class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="font-display text-2xl text-[#1F1C1B]">Template Siap Pakai</p>
+              <div id="template-filter-tabs" class="flex flex-wrap gap-1.5 text-xs"></div>
+            </div>
+            <div id="template-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+          </div>
+        </section>
+
+        <!-- ==================== STEP 2: Isi Buket & Ukuran ==================== -->
+        <section id="custom-step-2" class="hidden space-y-5">
+          <!-- Card 1: Jenis Buket -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-4">
+            <div class="flex items-baseline justify-between gap-2">
+              <h2 class="font-display text-2xl text-[#1F1C1B]">1. Pilih Jenis Buket</h2>
+              <span class="text-[11px] text-[#6A625B]">Bebas custom sesuai seleramu</span>
+            </div>
+            <div id="cfg-flower-types" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- Card 2: Detail Isian & Ukuran -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-5">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">2. Detail Isi &amp; Ukuran</h2>
+
+            <!-- Item Picker (Snack untuk Buket Snack; Semua Kategori untuk Mix Custom) -->
+            <div id="cfg-snack-picker-wrap" class="space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p id="cfg-picker-title" class="text-xs font-semibold text-[#1F1C1B]">Pilih Isian Buket (Opsional)</p>
+                  <p id="cfg-picker-desc" class="text-[11px] text-[#6A625B]">Klik <strong>+</strong> untuk pilih sendiri isiannya, atau biarkan 0 agar dipilihkan toko.</p>
+                </div>
+                <button type="button" id="cfg-snack-reset-btn" onclick="resetSelectedSnacks()"
+                  class="hidden text-[11px] font-semibold text-[#B85D38] hover:underline cursor-pointer">
+                  Reset Pilihan
+                </button>
+              </div>
+              <div id="cfg-picker-cat-tabs" class="hidden flex flex-wrap gap-1.5"></div>
+              <div id="cfg-snack-picker" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+            </div>
+
+            <!-- Photo Style Options -->
+            <div id="cfg-photo-style-wrap" class="hidden space-y-2 pt-3 border-t border-[#E6DDD0]">
+              <div class="flex items-baseline justify-between gap-2">
+                <label class="text-xs font-semibold text-[#1F1C1B]">Model Cetak Foto</label>
+                <span class="text-[11px] text-[#6A625B]">File foto dikirim via WA setelah checkout</span>
+              </div>
+              <div id="cfg-photo-styles" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+            </div>
+
+            <!-- Artificial Flower Options -->
+            <div id="cfg-artificial-type-wrap" class="hidden space-y-2 pt-3 border-t border-[#E6DDD0]">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Jenis Rangkaian Bunga</label>
+              <div id="cfg-artificial-types" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+            </div>
+
+            <!-- Fill Count / Size -->
+            <div id="cfg-fill-count-wrap" class="space-y-2.5 pt-3 border-t border-[#E6DDD0]">
+              <div class="flex items-baseline justify-between">
+                <label class="text-xs font-semibold text-[#1F1C1B]">Ukuran &amp; Jumlah Isian</label>
+                <span class="text-[11px] text-[#6A625B]">Makin banyak makin penuh</span>
+              </div>
+              <div id="cfg-bloom-counts" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: Tema Warna & Catatan -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-4">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">3. Tema Warna &amp; Catatan</h2>
+            <div id="cfg-satin-colors" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+            <div class="pt-2">
+              <label for="cfg-custom-fill-note" class="block text-xs font-semibold text-[#1F1C1B] mb-1.5">Catatan Request Isi (Opsional)</label>
+              <textarea id="cfg-custom-fill-note" rows="2" oninput="onCustomFillNoteInput(this.value)"
+                placeholder="Contoh: Snack dominan cokelat, atau permintaan khusus lainnya..."
+                class="w-full px-3.5 py-2.5 text-xs bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== STEP 3: Pembungkus & Tambahan ==================== -->
+        <section id="custom-step-3" class="hidden space-y-5">
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-5">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">1. Pembungkus &amp; Pita</h2>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Model Rangkaian</label>
+              <div id="cfg-wrap-styles" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Warna Kertas Cellophane</label>
+              <div id="cfg-wrap-colors" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Warna Pita Pengikat</label>
+              <div id="cfg-ribbon-colors" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-5">
+            <h2 class="font-display text-2xl text-[#1F1C1B]">2. Tambahan Opsional</h2>
+
+            <div id="cfg-money-slots-wrap" class="space-y-2">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Tambahan Slot Uang</label>
+              <div id="cfg-money-slots" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div>
+            </div>
+
+            <!-- Money Denomination & Source (shown when money bouquet OR extra slots added) -->
+            <div id="cfg-money-detail-wrap" class="hidden space-y-4 pt-3 border-t border-[#E6DDD0]">
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-[#1F1C1B]">Pilih Pecahan Uang</label>
+                <div id="cfg-money-denoms" class="grid grid-cols-3 sm:grid-cols-6 gap-2"></div>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-[#1F1C1B]">Sumber Uang</label>
+                <div id="cfg-money-sources" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-[#1F1C1B]">Aksesoris &amp; Isian Pelengkap</label>
+              <div id="cfg-addons" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== STEP 4: Kartu Ucapan & Ringkasan ==================== -->
+        <section id="custom-step-4" class="hidden space-y-5">
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#E6DDD0]">
+              <div>
+                <h2 class="font-display text-2xl text-[#1F1C1B]">Kartu Ucapan A6 (Gratis)</h2>
+                <p class="text-xs text-[#6A625B]">Dicetak rapi pada kertas Art Carton A6 untuk buketmu.</p>
+              </div>
+              <div class="flex flex-wrap gap-1.5 text-[11px]">
+                <button type="button" onclick="fillQuickMessage('wisuda')" class="px-3 py-1 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] cursor-pointer">Wisuda</button>
+                <button type="button" onclick="fillQuickMessage('ultah')" class="px-3 py-1 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] cursor-pointer">Ulang Tahun</button>
+                <button type="button" onclick="fillQuickMessage('anniv')" class="px-3 py-1 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#1F1C1B] cursor-pointer">Anniversary</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+              <div class="md:col-span-6 space-y-3 text-xs">
+                <div id="cfg-card-themes" class="grid grid-cols-2 gap-2"></div>
+                <input id="cfg-card-to" type="text" placeholder="Kepada (cth: Sahabatku Dinda)" oninput="onCardInputUpdate()"
+                  class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+                <textarea id="cfg-card-message" rows="3" placeholder="Tulis pesan ucapan..." oninput="onCardInputUpdate()"
+                  class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]"></textarea>
+                <input id="cfg-card-from" type="text" placeholder="Dari (cth: Raka)" oninput="onCardInputUpdate()"
+                  class="w-full px-3.5 py-2.5 bg-[#FAF6EE] border border-[#E6DDD0] rounded-2xl focus:outline-none focus:border-[#1F1C1B]" />
+              </div>
+              <div class="md:col-span-6">
+                <div id="cfg-card-live-preview" class="border border-dashed border-[#D5C9BA] p-2.5 bg-[#FAF6EE] rounded-2xl"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ringkasan Akhir -->
+          <div class="bg-white border border-[#E6DDD0] rounded-3xl p-5 sm:p-6 space-y-3">
+            <div class="border-b border-[#E6DDD0] pb-3">
+              <h2 class="font-display text-2xl text-[#1F1C1B]">Cek Ulang Pesananmu</h2>
+              <p class="text-xs text-[#6A625B]">Pastikan detail buket sudah pas sebelum lanjut ke pembayaran QRIS / Transfer.</p>
+            </div>
+            <div id="step-4-summary-list" class="divide-y divide-[#E6DDD0] text-xs"></div>
+          </div>
+        </section>
+
+        <!-- Bottom Navigation Row -->
+        <div class="pt-2 flex items-center justify-between gap-4">
+          <button type="button" id="wizard-prev-btn" onclick="prevWizardStep()"
+            class="hidden px-5 py-3 rounded-full bg-white border border-[#D5C9BA] hover:border-[#1F1C1B] text-xs font-semibold text-[#1F1C1B] cursor-pointer inline-flex items-center gap-2 transition">
+            <i class="ph ph-arrow-left"></i><span>Sebelumnya</span>
+          </button>
+          <div class="flex-1"></div>
+          <button type="button" id="wizard-next-btn" onclick="nextWizardStep()"
+            class="px-7 py-3 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-xs font-semibold cursor-pointer inline-flex items-center gap-2 transition">
+            <span>Lanjut</span><i class="ph ph-arrow-right"></i>
+          </button>
+          <button type="button" id="wizard-checkout-btn" onclick="proceedToCheckout()"
+            class="hidden px-7 py-3.5 rounded-full bg-[#B85D38] hover:bg-[#9E4C2B] text-white text-xs sm:text-sm font-semibold cursor-pointer inline-flex items-center gap-2 transition">
+            <span>Lanjut ke Pembayaran</span><i class="ph ph-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sticky Mobile Bottom Action Bar -->
+  <div class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#FAF6EE]/95 backdrop-blur-md border-t border-[#E6DDD0] px-5 py-3 flex items-center justify-between gap-4 no-print">
+    <div>
+      <span class="block text-[10px] text-[#6A625B]">Estimasi Total</span>
+      <span id="mobile-sticky-price" class="font-mono text-base font-bold text-[#1F1C1B]">Rp 0</span>
+    </div>
+    <button type="button" id="mobile-sticky-cta" onclick="handleMobileStickyCta()"
+      class="px-5 py-2.5 rounded-full bg-[#1F1C1B] text-[#FAF6EE] text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5 shrink-0">
+      <span>Lanjut</span><i class="ph ph-arrow-right"></i>
+    </button>
+  </div>
+
+  <div id="site-footer"></div>
+
+  <script src="data.js?v=23"></script>
+  <script src="core.js?v=23"></script>
+  <script>
+    let cfgState = createDefaultConfigState();
+    let currentStep = 1;
+    let lastShownStep = 1;
+    let lastShownPrice = 0;
+    let activeTemplateTab = 'Semua';
+    let activePickerCat = 'Semua';
+    let showBreakdown = false;
+    let previewMode = 'photo';
+
+    const WIZARD_STEPS = [
+      { id: 1, title: 'Mulai', heading: 'Pilih Template atau Rangkai Sendiri' },
+      { id: 2, title: 'Isi Buket', heading: 'Atur Jenis Isi, Ukuran & Tema Warna' },
+      { id: 3, title: 'Wrapping', heading: 'Pilih Pembungkus, Pita & Tambahan' },
+      { id: 4, title: 'Ucapan', heading: 'Kartu Ucapan A6 & Cek Pesanan' },
+    ];
+
+    const QUICK_CARD_MESSAGES = {
+      wisuda: 'Happy Graduation! Semoga ilmu dan perjuanganmu selalu membawa keberhasilan di langkah berikutnya.',
+      ultah: 'Selamat ulang tahun! Semoga panjang umur, sehat selalu, dan segala harapan indahmu terwujud.',
+      anniv: 'Terima kasih telah menjadi bagian terbaik dalam setiap hariku. Selamat merayakan momen spesial kita.',
+    };
+
+    function isolateConfigStateForBouquetType(bType) {
+      cfgState.bouquetType = bType;
+      const catalog = getCustomFillItems();
+      const allowed = new Set(
+        (bType === 'mix' ? catalog : catalog.filter((it) => (it.cat || it.category || 'Snack') === 'Snack')).map((it) => it.id)
+      );
+      const cleaned = {};
+      if (bType === 'snack' || bType === 'mix') {
+        Object.keys(cfgState.selectedSnacks || {}).forEach((id) => {
+          if (allowed.has(id)) cleaned[id] = cfgState.selectedSnacks[id];
+        });
+      }
+      cfgState.selectedSnacks = cleaned;
+      if (bType === 'money') {
+        cfgState.moneySlots = 0;
+      } else if (Number(cfgState.moneySlots || 0) === 0) {
+        // No cash-source leak when there are no money slots
+        cfgState.moneySource = 'self';
+      }
+    }
+
+    function normalizeSnackSelectionForPricing(state) {
+      const snackMap = state.selectedSnacks && typeof state.selectedSnacks === 'object' ? state.selectedSnacks : {};
+      const total = Object.values(snackMap).reduce((s, q) => s + Number(q || 0), 0);
+      // Fewer than 3 hand-picked items fall back to the base bouquet size
+      return total > 0 && total < 3 ? { ...state, selectedSnacks: {} } : state;
+    }
+
+    function syncCustomFillNoteInput() {
+      const noteEl = document.getElementById('cfg-custom-fill-note');
+      if (noteEl) noteEl.value = cfgState.customFillNote || '';
+      const toEl = document.getElementById('cfg-card-to');
+      if (toEl) toEl.value = cfgState.cardTo || '';
+      const msgEl = document.getElementById('cfg-card-message');
+      if (msgEl) msgEl.value = cfgState.cardMessage || '';
+      const fromEl = document.getElementById('cfg-card-from');
+      if (fromEl) fromEl.value = cfgState.cardFrom || '';
+    }
+
+    function setPreviewMode(mode) {
+      previewMode = mode === 'live' ? 'live' : 'photo';
+      renderPreviewAndPricing();
+    }
+
+    function handleCfgDelegatedClick(event) {
+      const el = event.target.closest ? event.target.closest('[data-cfg-action]') : null;
+      if (!el) return;
+      const action = el.dataset.cfgAction;
+      const id = el.dataset.cfgId || '';
+      const value = el.dataset.cfgValue;
+      const numericFields = ['fillCount', 'moneyDenom', 'moneySlots'];
+      switch (action) {
+        case 'setPreviewMode': return setPreviewMode(value);
+        case 'goToWizardStep': return goToWizardStep(Number(value));
+        case 'setTemplateTab': return setTemplateTab(value);
+        case 'setPickerCat': return setPickerCat(value);
+        case 'customizeTemplateAndNext': return customizeTemplateAndNext(id);
+        case 'orderTemplateDirectly': return orderTemplateDirectly(id);
+        case 'applySampleReference': return applySampleReference(id);
+        case 'adjustSnackQty': return adjustSnackQty(id, Number(el.dataset.cfgDelta || 0));
+        case 'toggleCfgAddon': return toggleCfgAddon(id);
+        case 'removeSnack': return adjustSnackQty(id, -Number(cfgState.selectedSnacks?.[id] || 0));
+        case 'clearMoneySlots': return updateCfgField('moneySlots', 0);
+        case 'updateCfgField':
+          return updateCfgField(el.dataset.cfgField, numericFields.includes(el.dataset.cfgField) ? Number(value) : value);
+      }
+    }
+
+    function initCustomizeStudio() {
+      bootstrapSharedPage('customize', false);
+
+      const presetId = getQueryParam('preset');
+      const modeParam = getQueryParam('mode');
+      const colorParam = getQueryParam('color');
+      const typeParam = getQueryParam('type');
+      const stepParam = Number(getQueryParam('step') || 0);
+      const existingDraft = getDraftOrder();
+
+      if (presetId) {
+        cfgState = buildDraftFromProduct(presetId, 'catalog');
+      } else if (existingDraft) {
+        cfgState = { ...createDefaultConfigState(), ...existingDraft };
+      } else {
+        cfgState = createDefaultConfigState();
+      }
+
+      if (typeParam && CONFIGURATOR_OPTIONS.bouquetTypes.some((b) => b.id === typeParam)) {
+        isolateConfigStateForBouquetType(typeParam);
+      }
+      if (colorParam && CONFIGURATOR_OPTIONS.satinColors.some((c) => c.id === colorParam)) {
+        cfgState.satinColor = colorParam;
+      }
+      if (modeParam === 'reference') {
+        cfgState.sourceType = 'reference';
+        activeTemplateTab = 'Referensi';
+        if (!cfgState.referenceImage && typeof SAMPLE_REFERENCES !== 'undefined' && SAMPLE_REFERENCES[0]) {
+          applySampleReference(SAMPLE_REFERENCES[0].id, false);
+        }
+      }
+
+      const customNoteEl = document.getElementById('cfg-custom-fill-note');
+      if (customNoteEl) customNoteEl.value = cfgState.customFillNote || '';
+      document.getElementById('cfg-card-to').value = cfgState.cardTo || '';
+      document.getElementById('cfg-card-message').value = cfgState.cardMessage || '';
+      document.getElementById('cfg-card-from').value = cfgState.cardFrom || '';
+
+      currentStep = stepParam >= 1 && stepParam <= 4 ? stepParam : 1;
+
+      document.addEventListener('click', handleCfgDelegatedClick);
+      renderStep1Templates();
+      renderSampleReferences();
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      renderCardLivePreview();
+      goToWizardStep(currentStep);
+    }
+
+    function setTemplateTab(tabName) {
+      activeTemplateTab = tabName;
+      if (tabName !== 'Referensi' && cfgState.sourceType === 'reference') {
+        cfgState.sourceType = 'custom';
+        saveDraftOrder(cfgState);
+        renderPreviewAndPricing();
+      }
+      renderStep1Templates();
+    }
+
+    function closeReferenceMode() {
+      activeTemplateTab = 'Semua';
+      cfgState.sourceType = 'custom';
+      // Customer's uploaded reference is only cleared when explicitly leaving reference mode
+      cfgState.referenceImage = '';
+      cfgState.referenceNote = '';
+      saveDraftOrder(cfgState);
+      renderStep1Templates();
+      renderPreviewAndPricing();
+    }
+
+    function openReferenceMode() {
+      activeTemplateTab = 'Referensi';
+      cfgState.sourceType = 'reference';
+      saveDraftOrder(cfgState);
+      renderStep1Templates();
+      renderPreviewAndPricing();
+    }
+
+    function startFreshCustom() {
+      const keptCard = {
+        cardTheme: cfgState.cardTheme,
+        cardTo: cfgState.cardTo,
+        cardMessage: cfgState.cardMessage,
+        cardFrom: cfgState.cardFrom,
+      };
+      cfgState = { ...createDefaultConfigState(), ...keptCard, sourceType: 'custom' };
+      saveDraftOrder(cfgState);
+      syncCustomFillNoteInput();
+      renderStep1Templates();
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      goToWizardStep(2);
+    }
+
+    function customizeTemplateAndNext(productId) {
+      const next = buildDraftFromProduct(productId, 'catalog');
+      next.cardTheme = cfgState.cardTheme;
+      next.cardTo = cfgState.cardTo;
+      next.cardMessage = cfgState.cardMessage;
+      next.cardFrom = cfgState.cardFrom;
+      cfgState = next;
+      saveDraftOrder(cfgState);
+      syncCustomFillNoteInput();
+      renderStep1Templates();
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      goToWizardStep(2);
+      showToast('Template diterapkan, silakan sesuaikan detailnya.', 'success');
+    }
+
+    function orderTemplateDirectly(productId) {
+      const draft = buildDraftFromProduct(productId, 'catalog');
+      // Preserve the greeting card the customer already wrote
+      draft.cardTheme = cfgState.cardTheme;
+      draft.cardTo = cfgState.cardTo;
+      draft.cardMessage = cfgState.cardMessage;
+      draft.cardFrom = cfgState.cardFrom;
+      saveDraftOrder(draft);
+      window.location.href = `checkout.html?preset=${encodeURIComponent(productId)}`;
+    }
+
+    function renderStep1Templates() {
+      const products = getProducts();
+      const categories = ['Semua', ...new Set(products.map((p) => p.category))];
+
+      const tabsEl = document.getElementById('template-filter-tabs');
+      if (tabsEl) {
+        tabsEl.innerHTML = categories
+          .map((cat) => {
+            const active = cat === activeTemplateTab;
+            return `<button type="button" data-cfg-action="setTemplateTab" data-cfg-value="${escapeHtml(cat)}"
+              class="px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition ${
+                active ? 'bg-[#1F1C1B] text-[#FAF6EE] font-semibold' : 'bg-white border border-[#E6DDD0] text-[#6A625B] hover:border-[#1F1C1B] hover:text-[#1F1C1B]'
+              }">${escapeHtml(cat)}</button>`;
+          })
+          .join('');
+      }
+
+      const refPanel = document.getElementById('reference-upload-panel');
+      const gallerySec = document.getElementById('template-gallery-section');
+      const quickCards = document.getElementById('quick-start-cards');
+
+      if (activeTemplateTab === 'Referensi') {
+        refPanel?.classList.remove('hidden');
+        gallerySec?.classList.add('hidden');
+        quickCards?.classList.add('hidden');
+        const noteEl = document.getElementById('ref-note-textarea');
+        if (noteEl) noteEl.value = cfgState.referenceNote || '';
+        return;
+      }
+
+      refPanel?.classList.add('hidden');
+      gallerySec?.classList.remove('hidden');
+      quickCards?.classList.remove('hidden');
+
+      const filtered = products.filter((p) => activeTemplateTab === 'Semua' || p.category === activeTemplateTab);
+      const grid = document.getElementById('template-cards-grid');
+      if (!grid) return;
+
+      grid.innerHTML = filtered
+        .map((p) => {
+          const isSelected = cfgState.productId === p.id && cfgState.sourceType === 'catalog';
+          return `
+            <div class="bg-white border rounded-3xl overflow-hidden flex flex-col justify-between group transition ${isSelected ? 'border-[#B85D38] ring-1 ring-[#B85D38]' : 'border-[#E6DDD0] hover:border-[#1F1C1B]'}">
+              <div>
+                <div class="relative aspect-[4/3.1] m-2.5 rounded-2xl overflow-hidden bg-[#F3ECE0]">
+                  <img src="${escapeHtml(p.image)}" onerror="handleImgError(this)" alt="${escapeHtml(p.name)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                  <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-[#FAF6EE]/95 rounded-full font-mono text-[10px] font-medium text-[#1F1C1B]">
+                    ${escapeHtml(p.category)}
+                  </span>
+                </div>
+                <div class="px-4 pt-1 pb-3 space-y-1">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <h3 class="font-display text-lg text-[#1F1C1B] leading-snug">${escapeHtml(p.name)}</h3>
+                    <span class="font-mono text-xs font-bold text-[#B85D38] shrink-0">${formatRupiah(p.price)}</span>
+                  </div>
+                  <p class="text-[11px] text-[#6A625B] line-clamp-2">${escapeHtml(p.description)}</p>
+                </div>
+              </div>
+              <div class="px-4 pb-4 grid grid-cols-2 gap-2">
+                <button type="button" data-cfg-action="customizeTemplateAndNext" data-cfg-id="${escapeHtml(p.id)}"
+                  class="py-2 rounded-full border border-[#D5C9BA] hover:border-[#1F1C1B] text-[11px] font-semibold text-[#1F1C1B] cursor-pointer transition">
+                  Ubah Detail
+                </button>
+                <button type="button" data-cfg-action="orderTemplateDirectly" data-cfg-id="${escapeHtml(p.id)}"
+                  class="py-2 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-[11px] font-semibold cursor-pointer transition">
+                  Pesan Langsung
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function renderSampleReferences() {
+      const box = document.getElementById('sample-reference-grid');
+      if (!box || typeof SAMPLE_REFERENCES === 'undefined') return;
+      box.innerHTML = SAMPLE_REFERENCES.map(
+        (s) => `
+        <button type="button" data-cfg-action="applySampleReference" data-cfg-id="${escapeHtml(s.id)}"
+          class="p-1.5 bg-[#FAF6EE] border border-[#E6DDD0] hover:border-[#B85D38] rounded-xl text-left cursor-pointer transition">
+          <img src="${escapeHtml(s.image)}" onerror="handleImgError(this)" alt="${escapeHtml(s.label)}" class="w-full h-14 object-cover rounded-lg mb-1" />
+          <p class="text-[10px] font-medium text-[#1F1C1B] line-clamp-1">${escapeHtml(s.label.split(':')[1] || s.label)}</p>
+        </button>
+      `
+      ).join('');
+    }
+
+    function applySampleReference(sampleId, shouldRender = true) {
+      const sample = SAMPLE_REFERENCES.find((s) => s.id === sampleId);
+      if (!sample) return;
+      cfgState.sourceType = 'reference';
+      cfgState.productId = null;
+      cfgState.productName = sample.label;
+      cfgState.referenceImage = sample.image;
+      cfgState.referenceNote = sample.note;
+      // Reset cross-mode leftovers before applying the sample preset
+      cfgState.selectedSnacks = {};
+      cfgState.moneySource = 'self';
+      cfgState.moneySlots = 0;
+      if (sample.presetConfig) {
+        Object.assign(cfgState, sample.presetConfig);
+        cfgState.addons = { ...(sample.presetConfig.addons || {}) };
+      }
+      saveDraftOrder(cfgState);
+      if (shouldRender) {
+        const noteEl = document.getElementById('ref-note-textarea');
+        if (noteEl) noteEl.value = cfgState.referenceNote || '';
+        renderConfiguratorOptions();
+        renderPreviewAndPricing();
+        showToast('Contoh referensi diterapkan.', 'success');
+      }
+    }
+
+    function handleReferenceUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 900;
+          const scale = Math.min(1, maxDim / img.width, maxDim / img.height);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          cfgState.referenceImage = canvas.toDataURL('image/jpeg', 0.78);
+          cfgState.sourceType = 'reference';
+          saveDraftOrder(cfgState);
+          renderPreviewAndPricing();
+          showToast('Foto referensi berhasil diunggah!', 'success');
+        };
+        img.onerror = () => showToast('Gagal membaca gambar. Coba file lain.', 'error');
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function onReferenceNoteInput(val) {
+      cfgState.referenceNote = val;
+      saveDraftOrder(cfgState);
+    }
+
+    function goToWizardStep(step) {
+      const targetStep = Math.max(1, Math.min(4, Number(step)));
+      if (targetStep === 1 && currentStep === 1 && activeTemplateTab === 'Referensi') {
+        closeReferenceMode();
+      }
+      const dirClass = targetStep >= lastShownStep ? 'step-pane-forward' : 'step-pane-back';
+      currentStep = targetStep;
+
+      WIZARD_STEPS.forEach((s) => {
+        const pane = document.getElementById(`custom-step-${s.id}`);
+        if (!pane) return;
+        const isCurrent = s.id === currentStep;
+        pane.classList.toggle('hidden', !isCurrent);
+        if (isCurrent) {
+          pane.classList.remove('step-pane-forward', 'step-pane-back');
+          void pane.offsetWidth;
+          pane.classList.add(dirClass);
+        }
+      });
+      lastShownStep = currentStep;
+
+      const activeMeta = WIZARD_STEPS.find((s) => s.id === currentStep);
+      document.getElementById('wizard-step-kicker').textContent = `Langkah ${currentStep} dari 4`;
+      document.getElementById('wizard-step-heading').textContent = activeMeta ? activeMeta.heading : '';
+
+      document.getElementById('wizard-step-nav').innerHTML = WIZARD_STEPS.map((s) => {
+        const active = s.id === currentStep;
+        const done = s.id < currentStep;
+        return `<button type="button" data-cfg-action="goToWizardStep" data-cfg-value="${s.id}"
+          class="px-3.5 py-1.5 rounded-full cursor-pointer transition inline-flex items-center gap-1.5 ${
+            active
+              ? 'bg-[#1F1C1B] text-[#FAF6EE] font-semibold shadow-xs'
+              : done
+              ? 'text-[#1F1C1B] font-medium hover:bg-white/70'
+              : 'text-[#6A625B] hover:text-[#1F1C1B]'
+          }">
+          <span class="font-mono text-[10px] ${active ? 'text-[#E0A33A]' : done ? 'text-[#B85D38]' : 'opacity-60'}">${s.id}.</span>
+          <span>${escapeHtml(s.title)}</span>
+        </button>`;
+      }).join('');
+
+      document.getElementById('wizard-prev-btn').classList.toggle('hidden', currentStep === 1);
+      document.getElementById('wizard-next-btn').classList.toggle('hidden', currentStep === 4);
+      document.getElementById('wizard-checkout-btn').classList.toggle('hidden', currentStep !== 4);
+
+      const ctaLabel = currentStep === 4
+        ? '<span>Lanjut ke Pembayaran</span><i class="ph ph-arrow-right"></i>'
+        : '<span>Lanjut ke Langkah Berikutnya</span><i class="ph ph-arrow-right"></i>';
+
+      const mobileCta = document.getElementById('mobile-sticky-cta');
+      if (mobileCta) mobileCta.innerHTML = ctaLabel;
+      const sidebarCta = document.getElementById('sidebar-next-btn');
+      if (sidebarCta) sidebarCta.innerHTML = ctaLabel;
+
+      if (currentStep === 4) renderStep4Summary();
+      saveDraftOrder(cfgState);
+      if (typeof window !== 'undefined' && window.scrollY > 180) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function nextWizardStep() { if (currentStep < 4) goToWizardStep(currentStep + 1); }
+    function prevWizardStep() { if (currentStep > 1) goToWizardStep(currentStep - 1); }
+    function handleMobileStickyCta() { if (currentStep < 4) nextWizardStep(); else proceedToCheckout(); }
+
+    function togglePriceBreakdown() {
+      showBreakdown = !showBreakdown;
+      document.getElementById('price-breakdown-drawer')?.classList.toggle('hidden', !showBreakdown);
+      const chev = document.getElementById('breakdown-chevron');
+      if (chev) chev.style.transform = showBreakdown ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function renderConfiguratorOptions() {
+      const moneyWrap = document.getElementById('cfg-money-slots-wrap');
+      if (moneyWrap) moneyWrap.classList.toggle('hidden', cfgState.bouquetType === 'money');
+
+      document.getElementById('cfg-flower-types').innerHTML = CONFIGURATOR_OPTIONS.bouquetTypes
+        .map((f) => {
+          const active = cfgState.bouquetType === f.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="bouquetType" data-cfg-value="${f.id}"
+            class="p-3 border rounded-2xl text-left cursor-pointer transition flex items-center gap-3 ${
+              active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            <img src="${escapeHtml(f.image || FALLBACK_IMAGE)}" onerror="handleImgError(this)" alt="${escapeHtml(f.shortLabel)}"
+              class="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#E6DDD0]" />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-[#1F1C1B] truncate">${escapeHtml(f.shortLabel)}</span>
+                <span class="font-mono text-[10px] font-semibold text-[#B85D38] shrink-0">${formatRupiah(f.pricePerUnit)}/${escapeHtml(f.unitLabel)}</span>
+              </div>
+              <p class="text-[11px] text-[#6A625B] mt-0.5 line-clamp-2">${escapeHtml(f.desc)}</p>
+            </div>
+          </button>`;
+        })
+        .join('');
+
+      const snackWrap = document.getElementById('cfg-snack-picker-wrap');
+      const isMixMode = cfgState.bouquetType === 'mix';
+      const showSnackPicker = cfgState.bouquetType === 'snack' || isMixMode;
+      if (snackWrap) snackWrap.classList.toggle('hidden', !showSnackPicker);
+
+      const snackMap = cfgState.selectedSnacks || {};
+      const totalPickedSnacks = Object.values(snackMap).reduce((s, q) => s + Number(q || 0), 0);
+      const resetSnackBtn = document.getElementById('cfg-snack-reset-btn');
+      if (resetSnackBtn) resetSnackBtn.classList.toggle('hidden', totalPickedSnacks === 0);
+
+      const pickerTitle = document.getElementById('cfg-picker-title');
+      const pickerDesc = document.getElementById('cfg-picker-desc');
+      const catTabsEl = document.getElementById('cfg-picker-cat-tabs');
+
+      if (pickerTitle && pickerDesc) {
+        if (isMixMode) {
+          pickerTitle.textContent = 'Pilih Bebas Isian Mix Custom (Snack, Boneka, Foto, Uang, Kado)';
+          pickerDesc.innerHTML = 'Klik <strong>+</strong> pada barang apa saja yang mau digabung dalam satu buket, atau biarkan 0 agar dipilihkan toko.';
+        } else {
+          pickerTitle.textContent = 'Pilih Snack Populer (Opsional)';
+          pickerDesc.innerHTML = 'Klik <strong>+</strong> untuk pilih sendiri (Tango, Beng-Beng, SilverQueen, dll), atau biarkan 0 agar dipilihkan toko.';
+        }
+      }
+
+      const fullCatalog = typeof getCustomFillItems === 'function'
+        ? getCustomFillItems()
+        : [...(CONFIGURATOR_OPTIONS.popularSnacks || []), ...(CONFIGURATOR_OPTIONS.mixExtraItems || [])];
+      const allItems = isMixMode
+        ? fullCatalog
+        : fullCatalog.filter((it) => !it.cat || it.cat === 'Snack');
+
+      if (catTabsEl) {
+        catTabsEl.classList.toggle('hidden', !isMixMode);
+        if (isMixMode) {
+          const cats = ['Semua', 'Snack', 'Bunga & Boneka', 'Foto & Uang', 'Kado & Aksesoris'];
+          catTabsEl.innerHTML = cats
+            .map((cat) => {
+              const active = cat === activePickerCat;
+              return `<button type="button" data-cfg-action="setPickerCat" data-cfg-value="${escapeHtml(cat)}"
+                class="px-3 py-1 rounded-full text-[11px] cursor-pointer transition ${
+                  active ? 'bg-[#1F1C1B] text-[#FAF6EE] font-semibold' : 'bg-[#FAF6EE] border border-[#E6DDD0] text-[#6A625B] hover:border-[#1F1C1B]'
+                }">${escapeHtml(cat)}</button>`;
+            })
+            .join('');
+        }
+      }
+
+      const visibleItems = isMixMode && activePickerCat !== 'Semua'
+        ? allItems.filter((it) => it.cat === activePickerCat)
+        : allItems;
+
+      const snackPickerEl = document.getElementById('cfg-snack-picker');
+      if (snackPickerEl && showSnackPicker) {
+        snackPickerEl.innerHTML = visibleItems
+          .map((sn) => {
+            const qty = Number(snackMap[sn.id] || 0);
+            return `<div class="p-3 border rounded-2xl flex items-center justify-between gap-2 transition ${
+              qty > 0 ? 'border-[#1F1C1B] bg-[#FAF6EE]' : 'border-[#E6DDD0] bg-white'
+            }">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-[#1F1C1B] truncate">${escapeHtml(sn.name)}</p>
+                <p class="text-[10px] text-[#6A625B] truncate">${escapeHtml(sn.variant)} · <span class="font-mono text-[#B85D38] font-semibold">${formatRupiah(sn.price)}</span></p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" data-cfg-action="adjustSnackQty" data-cfg-id="${escapeHtml(sn.id)}" data-cfg-delta="-1"
+                  class="w-7 h-7 rounded-full border border-[#D5C9BA] bg-white hover:border-[#1F1C1B] text-xs font-bold cursor-pointer inline-flex items-center justify-center">-</button>
+                <span class="w-5 text-center font-mono text-xs font-semibold text-[#1F1C1B]">${qty}</span>
+                <button type="button" data-cfg-action="adjustSnackQty" data-cfg-id="${escapeHtml(sn.id)}" data-cfg-delta="1"
+                  class="w-7 h-7 rounded-full bg-[#1F1C1B] hover:bg-[#B85D38] text-[#FAF6EE] text-xs font-bold cursor-pointer inline-flex items-center justify-center">+</button>
+              </div>
+            </div>`;
+          })
+          .join('');
+      }
+
+      const fillCountWrap = document.getElementById('cfg-fill-count-wrap');
+      if (fillCountWrap) fillCountWrap.classList.toggle('hidden', showSnackPicker && totalPickedSnacks > 0);
+
+      const showMoneyDetail = cfgState.bouquetType === 'money' || Number(cfgState.moneySlots || 0) > 0;
+      document.getElementById('cfg-money-detail-wrap')?.classList.toggle('hidden', !showMoneyDetail);
+      if (showMoneyDetail) {
+        document.getElementById('cfg-money-denoms').innerHTML = (CONFIGURATOR_OPTIONS.moneySlots.denominations || [])
+          .map((d) => {
+            const active = Number(cfgState.moneyDenom || 50000) === d.value;
+            return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="moneyDenom" data-cfg-value="${d.value}"
+              class="py-2.5 px-2 border rounded-2xl text-center cursor-pointer transition ${
+                active ? 'border-[#1F1C1B] bg-[#1F1C1B] text-[#FAF6EE]' : 'border-[#E6DDD0] bg-white text-[#1F1C1B] hover:border-[#1F1C1B]'
+              }">
+              <span class="block w-4 h-1.5 rounded-full mx-auto mb-1" style="background:${d.color}"></span>
+              <span class="block font-mono text-[11px] font-semibold">${escapeHtml(d.label)}</span>
+            </button>`;
+          })
+          .join('');
+
+        document.getElementById('cfg-money-sources').innerHTML = (CONFIGURATOR_OPTIONS.moneySlots.sources || [])
+          .map((s) => {
+            const active = (cfgState.moneySource || 'self') === s.id;
+            const label = s.label.replace('Studio', 'Toko');
+            return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="moneySource" data-cfg-value="${s.id}"
+              class="p-3.5 border rounded-2xl text-left cursor-pointer transition ${
+                active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+              }">
+              <p class="text-xs font-semibold text-[#1F1C1B]">${escapeHtml(label)}</p>
+              <p class="text-[11px] text-[#6A625B] mt-0.5">${escapeHtml(s.desc)}</p>
+            </button>`;
+          })
+          .join('');
+      }
+
+      const showPhotoStyle = cfgState.bouquetType === 'photo' || cfgState.bouquetType === 'mix';
+      document.getElementById('cfg-photo-style-wrap')?.classList.toggle('hidden', !showPhotoStyle);
+      if (showPhotoStyle) {
+        document.getElementById('cfg-photo-styles').innerHTML = (CONFIGURATOR_OPTIONS.photoStyles || [])
+          .map((p) => {
+            const active = (cfgState.photoStyle || 'polaroid-classic') === p.id;
+            return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="photoStyle" data-cfg-value="${p.id}"
+              class="p-2.5 border rounded-2xl text-center text-xs font-medium cursor-pointer transition ${
+                active ? 'border-[#1F1C1B] bg-[#1F1C1B] text-[#FAF6EE] font-semibold' : 'border-[#E6DDD0] bg-white text-[#1F1C1B] hover:border-[#1F1C1B]'
+              }">${escapeHtml(p.label)}</button>`;
+          })
+          .join('');
+      }
+
+      const showArtType = cfgState.bouquetType === 'artificial' || cfgState.bouquetType === 'mix';
+      document.getElementById('cfg-artificial-type-wrap')?.classList.toggle('hidden', !showArtType);
+      if (showArtType) {
+        document.getElementById('cfg-artificial-types').innerHTML = (CONFIGURATOR_OPTIONS.artificialTypes || [])
+          .map((a) => {
+            const active = (cfgState.artificialType || 'mawar-satin') === a.id;
+            return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="artificialType" data-cfg-value="${a.id}"
+              class="p-2.5 border rounded-2xl text-center text-xs font-medium cursor-pointer transition ${
+                active ? 'border-[#1F1C1B] bg-[#1F1C1B] text-[#FAF6EE] font-semibold' : 'border-[#E6DDD0] bg-white text-[#1F1C1B] hover:border-[#1F1C1B]'
+              }">${escapeHtml(a.label)}</button>`;
+          })
+          .join('');
+      }
+
+      document.getElementById('cfg-bloom-counts').innerHTML = CONFIGURATOR_OPTIONS.fillCounts
+        .map((b) => {
+          const active = Number(cfgState.fillCount || 10) === b.count;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="fillCount" data-cfg-value="${b.count}"
+            class="py-3 px-2 border rounded-2xl text-center cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#1F1C1B] text-[#FAF6EE]' : 'border-[#E6DDD0] bg-white text-[#1F1C1B] hover:border-[#1F1C1B]'
+            }">
+            <span class="block font-mono text-base font-bold">${b.count}</span>
+            <span class="block text-[10px] opacity-80">${escapeHtml(b.label)}</span>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-satin-colors').innerHTML = CONFIGURATOR_OPTIONS.satinColors
+        .map((c) => {
+          const active = cfgState.satinColor === c.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="satinColor" data-cfg-value="${escapeHtml(c.id)}"
+            class="p-3 border rounded-2xl flex items-center gap-3 text-left cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            <span class="w-6 h-6 rounded-full silk-swatch shrink-0" style="background:${c.hex}"></span>
+            <span class="text-xs font-medium text-[#1F1C1B] truncate">${escapeHtml(c.id)}</span>
+          </button>`;
+        })
+        .join('');
+
+      const wrapShapes = {
+        korean: '<svg viewBox="0 0 40 36" class="w-9 h-8 mx-auto mb-1.5" aria-hidden="true"><polygon points="4,8 20,2 36,8 25,30 15,30" fill="#F3ECE0" stroke="#1F1C1B" stroke-width="1.3"/><polygon points="2,13 13,6 20,16 14,29" fill="#E6DDD0" stroke="#1F1C1B" stroke-width="1.3"/><polygon points="38,13 27,6 20,16 26,29" fill="#E6DDD0" stroke="#1F1C1B" stroke-width="1.3"/></svg>',
+        dome: '<svg viewBox="0 0 40 36" class="w-9 h-8 mx-auto mb-1.5" aria-hidden="true"><path d="M8,14 Q20,2 32,14 L25,30 L15,30 Z" fill="#F3ECE0" stroke="#1F1C1B" stroke-width="1.3"/></svg>',
+        cone: '<svg viewBox="0 0 40 36" class="w-9 h-8 mx-auto mb-1.5" aria-hidden="true"><polygon points="10,7 30,7 23,32 17,32" fill="#F3ECE0" stroke="#1F1C1B" stroke-width="1.3"/></svg>',
+      };
+
+      document.getElementById('cfg-wrap-styles').innerHTML = CONFIGURATOR_OPTIONS.wrapStyles
+        .map((w) => {
+          const active = cfgState.wrapStyle === w.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="wrapStyle" data-cfg-value="${w.id}"
+            class="p-3.5 border rounded-2xl text-center cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            ${wrapShapes[w.id] || ''}
+            <p class="text-xs font-semibold text-[#1F1C1B]">${escapeHtml(w.label)}</p>
+            <p class="font-mono text-[10px] text-[#B85D38] mt-0.5">${formatRupiah(w.price)}</p>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-wrap-colors').innerHTML = CONFIGURATOR_OPTIONS.wrapColors
+        .map((w) => {
+          const active = cfgState.wrapColor === w.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="wrapColor" data-cfg-value="${escapeHtml(w.id)}"
+            class="p-2.5 border rounded-2xl flex items-center gap-2.5 text-left cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            <span class="w-6 h-6 rounded-lg border shrink-0" style="background:linear-gradient(135deg, ${w.hex} 52%, ${w.foldHex} 52%); border-color:${w.border}"></span>
+            <span class="text-xs font-medium text-[#1F1C1B] truncate">${escapeHtml(w.id)}</span>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-ribbon-colors').innerHTML = CONFIGURATOR_OPTIONS.ribbonColors
+        .map((r) => {
+          const active = cfgState.ribbonColor === r.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="ribbonColor" data-cfg-value="${escapeHtml(r.id)}"
+            class="p-2.5 border rounded-full flex items-center gap-2 text-left cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            <span class="w-4 h-4 rounded-full border border-black/15 shrink-0" style="background:${r.hex}"></span>
+            <span class="text-[11px] font-medium text-[#1F1C1B] truncate">${escapeHtml(r.id)}</span>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-money-slots').innerHTML = CONFIGURATOR_OPTIONS.moneySlots.counts
+        .map((n) => {
+          const active = Number(cfgState.moneySlots || 0) === n;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="moneySlots" data-cfg-value="${n}"
+            class="p-2.5 border rounded-2xl text-center cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] bg-[#1F1C1B] text-[#FAF6EE]' : 'border-[#E6DDD0] bg-white text-[#1F1C1B] hover:border-[#1F1C1B]'
+            }">
+            <span class="block text-[11px] font-semibold">${n === 0 ? 'Tanpa' : '+' + n + ' Slot'}</span>
+            <span class="block font-mono text-[10px] opacity-80">${n === 0 ? 'Rp 0' : '+' + formatRupiah(n * CONFIGURATOR_OPTIONS.moneySlots.slotPrice)}</span>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-addons').innerHTML = CONFIGURATOR_OPTIONS.addons
+        .map((a) => {
+          const checked = Boolean(cfgState.addons && cfgState.addons[a.id]);
+          return `<button type="button" data-cfg-action="toggleCfgAddon" data-cfg-id="${a.id}"
+            class="p-3 border rounded-2xl flex items-center justify-between gap-2 text-left cursor-pointer transition ${
+              checked ? 'border-[#1F1C1B] bg-[#FAF6EE] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] bg-white hover:border-[#1F1C1B]'
+            }">
+            <div>
+              <span class="block text-xs font-semibold text-[#1F1C1B]">${escapeHtml(a.label)}</span>
+              <span class="font-mono text-[10px] text-[#B85D38]">+${formatRupiah(a.price)}</span>
+            </div>
+            <i class="ph ${checked ? 'ph-check-circle text-[#B85D38]' : 'ph-circle text-[#D5C9BA]'} text-lg"></i>
+          </button>`;
+        })
+        .join('');
+
+      document.getElementById('cfg-card-themes').innerHTML = CONFIGURATOR_OPTIONS.cardThemes
+        .map((t) => {
+          const active = cfgState.cardTheme === t.id;
+          return `<button type="button" data-cfg-action="updateCfgField" data-cfg-field="cardTheme" data-cfg-value="${t.id}"
+            class="px-3 py-2 border rounded-2xl text-left cursor-pointer transition ${
+              active ? 'border-[#1F1C1B] ring-1 ring-[#1F1C1B]' : 'border-[#E6DDD0] hover:border-[#1F1C1B]'
+            }" style="background:${t.bg}; color:${t.text}">
+            <span class="text-[11px] font-semibold">${escapeHtml(t.label)}</span>
+          </button>`;
+        })
+        .join('');
+    }
+
+    function setPickerCat(cat) {
+      activePickerCat = cat;
+      renderConfiguratorOptions();
+    }
+
+    function adjustSnackQty(snackId, delta) {
+      if (!cfgState.selectedSnacks) cfgState.selectedSnacks = {};
+      const total = Object.values(cfgState.selectedSnacks).reduce((s, q) => s + Number(q || 0), 0);
+      if (delta > 0 && total >= 35) {
+        showToast('Maksimal 35 isian manual dalam satu buket.', 'warn');
+        return;
+      }
+      const current = Number(cfgState.selectedSnacks[snackId] || 0);
+      const next = Math.max(0, Math.min(20, current + delta));
+      if (next === 0) delete cfgState.selectedSnacks[snackId];
+      else cfgState.selectedSnacks[snackId] = next;
+      saveDraftOrder(cfgState);
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function resetSelectedSnacks() {
+      cfgState.selectedSnacks = {};
+      saveDraftOrder(cfgState);
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function onCustomFillNoteInput(val) {
+      cfgState.customFillNote = val;
+      saveDraftOrder(cfgState);
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function updateCfgField(field, val) {
+      cfgState[field] = val;
+      if (field === 'bouquetType') isolateConfigStateForBouquetType(val);
+      saveDraftOrder(cfgState);
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      if (field === 'cardTheme') renderCardLivePreview();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function toggleCfgAddon(id) {
+      if (!cfgState.addons) cfgState.addons = {};
+      cfgState.addons[id] = !cfgState.addons[id];
+      saveDraftOrder(cfgState);
+      renderConfiguratorOptions();
+      renderPreviewAndPricing();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function fillQuickMessage(key) {
+      const msg = QUICK_CARD_MESSAGES[key];
+      if (!msg) return;
+      const el = document.getElementById('cfg-card-message');
+      if (el) el.value = msg;
+      cfgState.cardMessage = msg;
+      saveDraftOrder(cfgState);
+      renderCardLivePreview();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function onCardInputUpdate() {
+      cfgState.cardTo = document.getElementById('cfg-card-to')?.value || '';
+      cfgState.cardMessage = document.getElementById('cfg-card-message')?.value || '';
+      cfgState.cardFrom = document.getElementById('cfg-card-from')?.value || '';
+      saveDraftOrder(cfgState);
+      renderCardLivePreview();
+      if (currentStep === 4) renderStep4Summary();
+    }
+
+    function renderCardLivePreview() {
+      const box = document.getElementById('cfg-card-live-preview');
+      if (!box) return;
+      const th = CONFIGURATOR_OPTIONS.cardThemes.find((t) => t.id === cfgState.cardTheme) || CONFIGURATOR_OPTIONS.cardThemes[0];
+      const to = cfgState.cardTo || 'Penerima Spesial';
+      const msg = cfgState.cardMessage || 'Tulis pesan ucapanmu...';
+      const from = cfgState.cardFrom || 'Pengirim';
+
+      box.innerHTML = `
+        <div style="background:${th.bg}; color:${th.text}; border-color:${th.border}" class="border p-5 min-h-[195px] flex flex-col justify-between text-center rounded-xl">
+          <span class="font-mono text-[9px] uppercase tracking-widest opacity-60">Azzatul Bouquet</span>
+          <div class="space-y-1.5 my-3">
+            <p class="text-[10px] uppercase tracking-wider font-semibold">Kepada: ${escapeHtml(to)}</p>
+            <p class="font-display italic text-lg leading-snug">"${escapeHtml(msg)}"</p>
+          </div>
+          <span class="text-[11px] font-medium pt-2 border-t border-current/20">Dari: ${escapeHtml(from)}</span>
+        </div>
+      `;
+    }
+
+    function renderPreviewAndPricing() {
+      const pricedCfg = normalizeSnackSelectionForPricing(cfgState);
+      const calc = calculateConfigPricing(pricedCfg);
+      const canvas = document.getElementById('studio-preview-canvas');
+      const badges = document.getElementById('preview-overlay-badges');
+      const colorObj = CONFIGURATOR_OPTIONS.satinColors.find((c) => c.id === cfgState.satinColor);
+
+      const tabPhoto = document.getElementById('preview-tab-photo');
+      const tabLive = document.getElementById('preview-tab-live');
+      const activeTab = 'px-3 py-1 rounded-full cursor-pointer transition bg-[#1F1C1B] text-[#FAF6EE]';
+      const idleTab = 'px-3 py-1 rounded-full cursor-pointer transition text-[#6A625B] hover:text-[#1F1C1B]';
+      if (tabPhoto) tabPhoto.className = previewMode === 'photo' ? activeTab : idleTab;
+      if (tabLive) tabLive.className = previewMode === 'live' ? activeTab : idleTab;
+
+      if (canvas) {
+        canvas.innerHTML = previewMode === 'live'
+          ? `<div class="w-full h-full flex items-center justify-center p-2">${renderCustomBouquetSvg(cfgState)}</div>`
+          : renderBouquetPhotoPreview(cfgState, 'w-full h-full object-cover');
+      }
+
+      if (badges) {
+        badges.innerHTML = `
+          <span class="px-3 py-1 rounded-full bg-[#1F1C1B]/80 backdrop-blur-md text-[#FAF6EE] text-[11px] font-medium">
+            ${escapeHtml(calc.bouquetObj.shortLabel)} · ${calc.fillCount} ${escapeHtml(calc.bouquetObj.unitLabel)}
+          </span>
+          ${colorObj ? `<span class="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#1F1C1B] text-[10px] font-medium inline-flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full" style="background:${colorObj.hex}"></span>
+            ${escapeHtml(colorObj.id)}
+          </span>` : ''}
+        `;
+      }
+
+      document.getElementById('studio-live-title').textContent = buildConfigTitle(cfgState, calc);
+      document.getElementById('studio-live-subtitle').textContent = `${calc.wrapStyleObj.label} (${cfgState.wrapColor}) · Pita ${cfgState.ribbonColor} · Kartu A6 Gratis`;
+
+      const selectedListEl = document.getElementById('studio-selected-list');
+      if (selectedListEl) {
+        const selectedChips = [];
+        if (calc.useCustomSnackList && calc.pickedSnackItems.length) {
+          calc.pickedSnackItems.forEach((it) => {
+            selectedChips.push({ label: `${it.qty}x ${it.name}`, action: 'removeSnack', id: it.id });
+          });
+        }
+        if (cfgState.moneySlots > 0) {
+          selectedChips.push({ label: `+${cfgState.moneySlots} Slot Uang`, action: 'clearMoneySlots' });
+        }
+        const activeAddons = CONFIGURATOR_OPTIONS.addons.filter((a) => cfgState.addons && cfgState.addons[a.id]);
+        activeAddons.forEach((a) => {
+          selectedChips.push({ label: a.label, action: 'toggleCfgAddon', id: a.id });
+        });
+
+        if (selectedChips.length > 0) {
+          selectedListEl.classList.remove('hidden');
+          selectedListEl.innerHTML = `
+            <p class="font-mono text-[10px] uppercase tracking-wider text-[#B85D38]">Sudah Dimasukkan (${selectedChips.length})</p>
+            <div class="flex flex-wrap gap-1.5">
+              ${selectedChips
+                .map(
+                  (ch) => `<span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full bg-[#FAF6EE] border border-[#E6DDD0] text-[11px] font-medium text-[#1F1C1B]">
+                    <span>${escapeHtml(ch.label)}</span>
+                    <button type="button" data-cfg-action="${ch.action}" data-cfg-id="${escapeHtml(ch.id || '')}" title="Hapus" class="w-4 h-4 rounded-full hover:bg-[#E6DDD0] inline-flex items-center justify-center text-[#6A625B] hover:text-[#1F1C1B] cursor-pointer">×</button>
+                  </span>`
+                )
+                .join('')}
+            </div>
+          `;
+        } else {
+          selectedListEl.classList.add('hidden');
+          selectedListEl.innerHTML = '';
+        }
+      }
+
+      const priceEl = document.getElementById('studio-total-price');
+      if (priceEl) {
+        priceEl.textContent = formatRupiah(calc.totalPrice);
+        if (lastShownPrice && lastShownPrice !== calc.totalPrice) replayAnimation(priceEl, 'price-bump');
+        lastShownPrice = calc.totalPrice;
+      }
+
+      const mobilePriceEl = document.getElementById('mobile-sticky-price');
+      if (mobilePriceEl) mobilePriceEl.textContent = formatRupiah(calc.totalPrice);
+
+      document.getElementById('studio-price-note').textContent = calc.isExactCatalogBundle
+        ? 'Harga paket template diterapkan'
+        : 'Sudah termasuk wrapping & kartu ucapan A6';
+
+      const drawer = document.getElementById('price-breakdown-drawer');
+      if (drawer) {
+        const activeAddons = CONFIGURATOR_OPTIONS.addons.filter((a) => cfgState.addons && cfgState.addons[a.id]);
+        const addonsRowsHtml = activeAddons
+          .map((a) => `<div class="flex justify-between"><span>+ ${escapeHtml(a.label)}</span><span class="font-mono">${formatRupiah(a.price)}</span></div>`)
+          .join('');
+        drawer.innerHTML = `
+          <div class="flex justify-between"><span>${escapeHtml(calc.bouquetObj.label)} (${calc.fillCount}x)</span><span class="font-mono">${formatRupiah(calc.fillPrice)}</span></div>
+          ${calc.moneyCashTotal > 0 ? `<div class="flex justify-between text-[#B85D38]"><span>Nominal Uang (${calc.totalMoneyBills} x ${formatRupiah(calc.moneyDenom)})</span><span class="font-mono">${formatRupiah(calc.moneyCashTotal)}</span></div>` : ''}
+          <div class="flex justify-between"><span>Wrapping (${escapeHtml(calc.wrapStyleObj.label)})</span><span class="font-mono">${formatRupiah(calc.wrapStyleObj.price)}</span></div>
+          ${calc.moneySlotPrice > 0 ? `<div class="flex justify-between"><span>Tambahan ${cfgState.moneySlots} Slot Uang</span><span class="font-mono">${formatRupiah(calc.moneySlotPrice)}</span></div>` : ''}
+          ${addonsRowsHtml}
+          <div class="flex justify-between text-[#2E5940]"><span>Kartu Ucapan A6</span><span class="font-mono">Gratis</span></div>
+          <div class="flex justify-between pt-1.5 border-t border-[#E6DDD0] text-[#1F1C1B]"><span>Estimasi pengerjaan</span><span class="font-mono">~${formatDurationMinutes(calc.prepMinutes)}</span></div>
+        `;
+      }
+    }
+
+    function renderStep4Summary() {
+      const calc = calculateConfigPricing(normalizeSnackSelectionForPricing(cfgState));
+      const addonNames = CONFIGURATOR_OPTIONS.addons
+        .filter((a) => cfgState.addons && cfgState.addons[a.id])
+        .map((a) => a.label);
+
+      const rows = [
+        { step: 1, label: 'Sumber Desain', val: cfgState.sourceType === 'catalog' ? `Template: ${cfgState.productName}` : cfgState.sourceType === 'reference' ? 'Menggunakan Foto Referensi' : 'Custom Rangkai Baru' },
+        { step: 2, label: 'Detail Isi & Tema', val: buildConfigSpecSummary(cfgState, calc) },
+        { step: 3, label: 'Wrapping, Pita & Tambahan', val: `${calc.wrapStyleObj.label} (${cfgState.wrapColor}) · Pita ${cfgState.ribbonColor}${cfgState.moneySlots > 0 ? ` · +${cfgState.moneySlots} Slot Uang` : ''}${addonNames.length ? ` · ${addonNames.join(', ')}` : ''}` },
+        { step: 4, label: 'Kartu Ucapan A6', val: `Kepada ${cfgState.cardTo || 'Pemesan'}: "${cfgState.cardMessage}"` },
+      ];
+
+      document.getElementById('step-4-summary-list').innerHTML = rows
+        .map(
+          (r) => `
+        <div class="py-3.5 flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[11px] text-[#6A625B]">${escapeHtml(r.label)}</p>
+            <p class="font-medium text-[#1F1C1B] mt-0.5">${escapeHtml(r.val)}</p>
+          </div>
+          ${r.step < 4 ? `<button type="button" data-cfg-action="goToWizardStep" data-cfg-value="${r.step}" class="text-xs font-semibold text-[#B85D38] hover:underline shrink-0 cursor-pointer">Ubah</button>` : ''}
+        </div>
+      `
+        )
+        .join('');
+    }
+
+    function proceedToCheckout() {
+      // Fewer than 3 hand-picked items fall back to the base bouquet size before saving
+      cfgState.selectedSnacks = normalizeSnackSelectionForPricing(cfgState).selectedSnacks;
+      saveDraftOrder(cfgState);
+      if (typeof saveActiveInvoiceId === 'function') saveActiveInvoiceId('');
+      window.location.href = '/checkout?new=1';
+    }
+
+    document.addEventListener('DOMContentLoaded', initCustomizeStudio);
+  </script>
+</body>
+</html>

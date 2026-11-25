@@ -1,0 +1,13 @@
+{
+  "name": "azzatul-bouquet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azzatul Bouquet — Aplikasi Pemesanan Buket Custom, Pembayaran QRIS Otomatis & Portal Operasional UMKM",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js"
+  }
+}
