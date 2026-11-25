@@ -17,7 +17,10 @@ const ALLOWED_KEYS = new Set([
 ]);
 
 function getSupabaseConfig() {
-  const url = String(process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+  const url = String(process.env.SUPABASE_URL || '')
+    .trim()
+    .replace(/\/rest\/v1\/?$/i, '')
+    .replace(/\/+$/, '');
   const key = String(process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
   return { configured: Boolean(url && key), url, key };
 }
